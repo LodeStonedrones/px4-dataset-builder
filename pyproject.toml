@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "px4-dataset-builder"
+version = "0.1.0"
+description = "Local-first pipelines that turn PX4 ULogs into documented, ML-ready datasets."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [{name = "PX4 Dataset Builder contributors"}]
+keywords = ["px4", "ulog", "uav", "dataset", "robotics", "parquet"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<4",
+  "pyarrow>=17,<24",
+  "pydantic>=2.8,<3",
+  "pyulog>=1.1,<2",
+  "PyYAML>=6.0,<7",
+  "rich>=13.7,<15",
+  "typer>=0.12,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2,<2",
+  "mypy>=1.11,<2",
+  "pandas-stubs>=2.2",
+  "pytest>=8.3,<10",
+  "pytest-cov>=5,<8",
+  "ruff>=0.6,<1",
+  "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+px4-dataset = "px4_dataset_builder.cli.app:app"
+
+[project.urls]
+Documentation = "https://github.com/LodeStonedrones/px4-dataset-builder#readme"
+Issues = "https://github.com/LodeStonedrones/px4-dataset-builder/issues"
+Source = "https://github.com/LodeStonedrones/px4-dataset-builder"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/px4_dataset_builder"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --cov=px4_dataset_builder --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["px4_dataset_builder"]
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["pyulog.*"]
+ignore_missing_imports = true

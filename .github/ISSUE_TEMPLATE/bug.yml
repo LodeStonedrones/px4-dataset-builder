@@ -1,0 +1,39 @@
+name: Bug report
+description: Report reproducible behavior without exposing a sensitive ULog
+title: "[Bug]: "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach coordinates, identifiers, operational logs, or data you cannot redistribute.
+  - type: input
+    id: version
+    attributes:
+      label: Builder version
+    validations:
+      required: true
+  - type: input
+    id: px4
+    attributes:
+      label: PX4 version and coarse board family
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Synthetic/minimized reproduction and command
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Data review
+      options:
+        - label: I have not included sensitive, classified, operational, or unauthorized data.
+          required: true

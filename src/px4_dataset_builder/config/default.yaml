@@ -1,0 +1,150 @@
+signals:
+  - "*"
+output_format: parquet
+output_directory: dataset
+
+resampling:
+  frequency_hz: 10.0
+  continuous_method: linear
+  max_interpolation_gap_s: 1.0
+
+event_rules:
+  - name: gps_lost
+    kind: threshold
+    signal: gps.fix_type
+    operator: lt
+    threshold: 3
+    min_duration_s: 1.0
+    severity: error
+    description: GNSS fix type remained below 3D fix.
+  - name: gps_degraded
+    kind: threshold
+    signal: gps.fix_type
+    operator: eq
+    threshold: 3
+    min_duration_s: 2.0
+    severity: warning
+    description: GNSS reported a 3D fix without a higher-grade correction mode.
+  - name: low_satellite_count
+    kind: threshold
+    signal: gps.satellites_used
+    operator: lt
+    threshold: 8
+    min_duration_s: 2.0
+    severity: warning
+    description: Fewer than the configured number of satellites were used.
+  - name: high_eph
+    kind: threshold
+    signal: gps.eph_m
+    operator: gt
+    threshold: 3.0
+    min_duration_s: 2.0
+    severity: warning
+    description: Estimated horizontal position error exceeded the configured threshold.
+  - name: high_epv
+    kind: threshold
+    signal: gps.epv_m
+    operator: gt
+    threshold: 5.0
+    min_duration_s: 2.0
+    severity: warning
+    description: Estimated vertical position error exceeded the configured threshold.
+  - name: ekf_reset
+    kind: change
+    signal: estimator.xy_reset_counter
+    severity: warning
+    description: The public local-position reset counter changed.
+  - name: estimator_warning
+    kind: threshold
+    signal: estimator.filter_fault_flags
+    operator: ne
+    threshold: 0
+    min_duration_s: 0.0
+    severity: error
+    description: Public estimator fault flags were non-zero.
+  - name: high_vibration
+    kind: threshold
+    signal: vibration.accel
+    operator: gt
+    threshold: 4.0
+    min_duration_s: 1.0
+    severity: warning
+    description: Acceleration vibration metric exceeded the configured threshold.
+  - name: battery_low
+    kind: threshold
+    signal: battery.remaining
+    operator: lt
+    threshold: 0.20
+    min_duration_s: 1.0
+    severity: warning
+    description: Remaining battery fraction was below the configured low threshold.
+  - name: battery_critical
+    kind: threshold
+    signal: battery.remaining
+    operator: lt
+    threshold: 0.10
+    min_duration_s: 1.0
+    severity: critical
+    description: Remaining battery fraction was below the configured critical threshold.
+  - name: failsafe
+    kind: threshold
+    signal: flight.failsafe
+    operator: eq
+    threshold: 1
+    severity: critical
+    description: PX4 vehicle status reported failsafe active.
+  - name: takeoff
+    kind: edge
+    signal: land.landed
+    operator: eq
+    threshold: 0
+    severity: info
+    description: Land detector changed from landed to not landed.
+  - name: landing
+    kind: edge
+    signal: land.landed
+    operator: eq
+    threshold: 1
+    severity: info
+    description: Land detector changed from not landed to landed.
+  - name: mode_change
+    kind: change
+    signal: flight.mode
+    severity: info
+    description: PX4 navigation state changed.
+  - name: sensor_dropout
+    kind: gap
+    signal: imu.accel_x_m_s2
+    threshold: 0.5
+    severity: warning
+    description: A normalized IMU signal contained a gap longer than the configured duration.
+
+split:
+  strategy: random
+  train: 0.70
+  validation: 0.15
+  test: 0.15
+  seed: 42
+
+anonymization:
+  enabled: false
+  gps_mode: remove
+  relative_altitude: true
+  hash_source_filenames: true
+  remove_metadata:
+    - sys_uuid
+    - ver_hw
+    - sys_name
+    - vehicle_name
+    - serial_number
+
+quality:
+  required_topic_groups:
+    - [vehicle_status]
+    - [sensor_combined, vehicle_imu]
+  irregular_sampling_cv: 0.25
+  dropout_factor: 5.0
+  fail_on_corrupt: true
+
+performance:
+  workers: 1

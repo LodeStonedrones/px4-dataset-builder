@@ -1,0 +1,31 @@
+name: Feature or schema proposal
+description: Propose a transparent, interoperable feature
+title: "[Proposal]: "
+labels: ["type:proposal", "needs-design"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Community problem
+      description: Describe the workflow problem independently from the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public PX4 evidence
+      description: Link public message definitions, documentation, or authorized examples.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and alternatives
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Compatibility, methodology, privacy, and IP risks
+    validations:
+      required: true

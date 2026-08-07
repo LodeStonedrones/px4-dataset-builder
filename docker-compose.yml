@@ -1,0 +1,10 @@
+services:
+  builder:
+    build: .
+    command: ["build", "/logs", "--output", "/output"]
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./logs:/logs:ro
+      - ./dataset:/output
