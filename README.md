@@ -1,5 +1,25 @@
 # PX4 Dataset Builder
 
+## Looking for test logs
+
+We are collecting public or meaningfully anonymized PX4 ULogs covering challenging scenarios, including:
+
+- GNSS degradation or intermittent GNSS;
+- GPS loss or GPS-denied environments;
+- indoor flights;
+- urban canyons;
+- tunnels and underground environments;
+- high vibration;
+- aggressive maneuvers;
+- electromagnetic interference (EMI);
+- RF interference affecting navigation or communications;
+- multipath GNSS conditions;
+- other challenging real-world operational environments.
+
+If you can legally share a public or meaningfully anonymized log, please read the [log-data contribution rules](CONTRIBUTING.md#start-safely), then [open an issue](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new) or start a [GitHub Discussion](https://github.com/LodeStonedrones/px4-dataset-builder/discussions) to coordinate with the maintainers.
+
+**Do not attach sensitive, personal, customer, classified, accident-investigation, or operational flight logs to public issues or discussions.** Contributors must have permission to share the data and must review coordinates, identifiers, free text, metadata, and redistribution rights before providing a file.
+
 PX4 Dataset Builder turns one or more PX4 `.ulg` flight logs into versioned, documented datasets for statistics, research, debugging, carefully designed machine-learning workflows, and benchmarking.
 
 It is independent, local-first, and completely open source. It contains no proprietary navigation, anti-jamming, sensor-fusion, control, or commercial decision logic. Event labels are ordinary configurable rules, not ground truth and not flight-safety verdicts.
