@@ -1,4 +1,4 @@
-"""Version-tolerant PX4 topic catalog."""
+"""Canonical PX4 topic catalog."""
 
 from px4_dataset_builder.topics.catalog import SIGNAL_CATALOG, SignalSpec
 

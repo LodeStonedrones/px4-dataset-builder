@@ -15,4 +15,6 @@ Before sharing a dataset:
 
 Public project fixtures must be synthetic or have explicit redistribution permission and a provenance/redaction statement. Do not request or submit classified, export-controlled, customer-confidential, safety-investigation, military, or operationally sensitive logs.
 
+The default `/dataset/` output and common binary/tabular exports are ignored by Git, but a custom output directory or JSON metadata may not be. Always inspect `git status` before staging changes, and never use `git add --force` for generated flight data without an explicit review.
+
 Commercial or employer code, thresholds, datasets, model artifacts, and internal documentation are out of scope. Contributions must be derived from public PX4 specifications and contributor-owned work.

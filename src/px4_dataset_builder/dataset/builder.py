@@ -69,9 +69,18 @@ class DatasetBuilder:
         staged: list[StagedFlight] = []
         split_inputs: list[ProcessedFlight] = []
         failures: list[dict[str, str]] = []
+        private_input_names = {
+            path: f"input-{index:06d}.ulg" for index, path in enumerate(paths, start=1)
+        }
         for path, processed, error in self._process(paths):
             if error is not None or processed is None:
-                failures.append({"source_file": str(path), "error": error or "Unknown error"})
+                failures.append(
+                    self._failure_record(
+                        path,
+                        error or "Unknown error",
+                        private_input_names[path],
+                    )
+                )
                 continue
             raw_id = processed.metadata.flight_id
             split_inputs.append(
@@ -151,6 +160,16 @@ class DatasetBuilder:
         manifest = self._manifest(final_flights, index, failures, statistics, event_path)
         write_json(manifest, destination / "manifest.json")
         return manifest
+
+    def _failure_record(self, path: Path, error: str, private_name: str) -> dict[str, str]:
+        if not self.config.anonymization.enabled:
+            return {"source_file": str(path), "error": error}
+        sanitized_error = error
+        path_variants = {str(path), str(path.resolve()), path.name}
+        for value in sorted(path_variants, key=len, reverse=True):
+            if value:
+                sanitized_error = sanitized_error.replace(value, private_name)
+        return {"source_file": private_name, "error": sanitized_error}
 
     def _process(
         self, paths: list[Path]

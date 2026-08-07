@@ -48,9 +48,10 @@ def build_command(
     source: Annotated[
         Path, typer.Argument(exists=True, readable=True, help=".ulg file or directory")
     ],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Dataset directory")] = Path(
-        "dataset"
-    ),
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", help="Dataset directory; overrides the config file"),
+    ] = None,
     config_path: Annotated[
         Path | None, typer.Option("--config", "-c", exists=True, readable=True)
     ] = None,
@@ -67,7 +68,9 @@ def build_command(
 ) -> None:
     """Build a dataset from one ULog or a recursive directory of ULogs."""
     config = load_config(config_path)
-    updates: dict[str, object] = {"output_directory": output}
+    updates: dict[str, object] = {}
+    if output is not None:
+        updates["output_directory"] = output
     if output_format is not None:
         updates["output_format"] = output_format
     if anonymize:
@@ -75,8 +78,9 @@ def build_command(
     if workers is not None:
         updates["performance"] = config.performance.model_copy(update={"workers": workers})
     config = config.model_copy(update=updates)
+    destination = output or config.output_directory
     with console.status("Processing ULogs locally..."):
-        manifest = DatasetBuilder(config).build(source, output, force=force)
+        manifest = DatasetBuilder(config).build(source, destination, force=force)
     table = Table(title="Dataset built")
     table.add_column("Metric")
     table.add_column("Value", justify="right")
@@ -85,7 +89,7 @@ def build_command(
     table.add_row("Duration", f"{manifest['total_duration_seconds']:.1f} s")
     table.add_row("Failed logs", str(len(manifest["failed_logs"])))
     console.print(table)
-    console.print(f"Dataset: [bold]{output.resolve()}[/bold]")
+    console.print(f"Dataset: [bold]{destination.resolve()}[/bold]")
 
 
 @app.command("inspect")
@@ -158,7 +162,7 @@ def init_config_command(
 def generate_example_command(
     output: Annotated[Path, typer.Option("--output", "-o")] = Path("synthetic-flight.ulg"),
 ) -> None:
-    """Generate a tiny deterministic ULog with no real coordinates or identity."""
+    """Generate a tiny deterministic ULog with synthetic coordinates and no identity."""
     if output.exists():
         raise typer.BadParameter(f"Refusing to overwrite {output}")
     generate_synthetic_ulog(output)

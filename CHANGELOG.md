@@ -4,6 +4,24 @@ All notable changes follow Keep a Changelog and Semantic Versioning principles.
 
 ## [Unreleased]
 
+### Changed
+
+- Clarified alpha installation, compatibility evidence, ecosystem relationship, trademark status, community strategy, and performance limits.
+- Updated supported dependency ranges and GitHub Actions versions already validated by Dependabot CI.
+- Scoped release permissions to the publishing job and grouped future GitHub Actions updates.
+
+### Fixed
+
+- Honor `output_directory` from configuration when `--output` is omitted.
+- Redact failed input paths when anonymization is enabled.
+- Validate every file referenced by the dataset manifest.
+
+### Security
+
+- Enabled GitHub Private Vulnerability Reporting and documented safe reporting.
+- Enabled Dependabot vulnerability alerts and automated security updates.
+- Added Git ignore coverage and guidance for generated CSV and JSON Lines datasets.
+
 ## [0.1.0] - 2026-08-07
 
 ### Added

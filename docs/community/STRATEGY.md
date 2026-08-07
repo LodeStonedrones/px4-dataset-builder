@@ -2,9 +2,9 @@
 
 ## Repository and name
 
-Use a neutral GitHub organization with no startup branding. `px4-dataset-builder` is direct and searchable, but check name/trademark expectations with PX4 maintainers before publishing. If a more neutral name is preferred, `ulog-dataset-kit` preserves room for future formats while keeping PX4 adapters explicit.
+The initial repository is hosted at `LodeStonedrones/px4-dataset-builder`. Keep its presentation independent of commercial products and avoid claims of official PX4 status. If external maintainers join, consider transferring it to a neutral community organization. Check name and trademark expectations with PX4 maintainers as community adoption grows.
 
-Launch only after the quick start, synthetic demo, CI, privacy policy, and five to ten bounded issues work from a clean machine. Mark v0.1 as alpha and distinguish implemented features from roadmap items.
+The initial launch includes a quick start, synthetic demo, CI, privacy policy, issue templates, and an explicit alpha label. Before wider promotion, validate the documented workflow from a clean Python 3.12 environment and publish bounded starter issues. Continue to distinguish implemented features from roadmap items.
 
 ## Demo and sample data
 
@@ -14,9 +14,9 @@ Add real-version compatibility fixtures only when redistribution is explicit. Ev
 
 ## PX4 channels
 
-1. Open a concise PX4 Discuss post: problem, 90-second demo, architecture/non-goals, current compatibility, and two concrete review questions.
-2. Share the Discuss link—not a duplicate sales pitch—in the relevant PX4 Discord development channel.
-3. Attend PX4 Dev Calls before requesting a slot. Ask for 5–7 minutes only after feedback produces a real revision.
+1. Open a concise [PX4 Discuss](https://discuss.px4.io/) post: problem, 90-second demo, architecture/non-goals, current compatibility, and two concrete review questions.
+2. Share the Discuss link—not a duplicate sales pitch—in the relevant [PX4 Discord](https://discord.gg/BDYmr6FA6Q) development channel.
+3. Attend the [weekly PX4 Community Q&A call](https://docs.px4.io/main/en/contribute/dev_call.html) before requesting a slot. Ask for 5–7 minutes only after feedback produces a real revision.
 4. Position the tool as a local dataset pipeline complementary to Flight Review, not a replacement.
 5. Follow up with public notes, decisions, and issues.
 

@@ -1,6 +1,6 @@
 # PX4 Dataset Builder
 
-PX4 Dataset Builder turns one or thousands of PX4 `.ulg` flight logs into versioned, documented datasets for statistics, machine-learning infrastructure, research, debugging, anomaly-detection experiments, and benchmarking.
+PX4 Dataset Builder turns one or more PX4 `.ulg` flight logs into versioned, documented datasets for statistics, research, debugging, carefully designed machine-learning workflows, and benchmarking.
 
 It is independent, local-first, and completely open source. It contains no proprietary navigation, anti-jamming, sensor-fusion, control, or commercial decision logic. Event labels are ordinary configurable rules, not ground truth and not flight-safety verdicts.
 
@@ -8,7 +8,7 @@ It is independent, local-first, and completely open source. It contains no propr
 
 ULogs are rich but heterogeneous: uORB fields change across PX4 releases, topics run at different frequencies, real fleets have missing data, and a naive row split leaks samples from the same flight into training and test. PX4 Dataset Builder provides a reproducible boundary between source logs and downstream analysis:
 
-- version-tolerant canonical signal names and units;
+- canonical signal names and units mapped from documented uORB field candidates;
 - gap-aware, signal-specific synchronization;
 - explicit missing data and quality findings;
 - flight/group-level train, validation, and test splits;
@@ -20,20 +20,20 @@ Processing is local. The application makes no network request and never uploads 
 
 ## Installation
 
-Python 3.12 or newer is required.
+Python 3.12 or newer is required. There is no PyPI release yet; install the current alpha from source:
 
 ```bash
-python -m venv .venv
+git clone https://github.com/LodeStonedrones/px4-dataset-builder.git
+cd px4-dataset-builder
+python3.12 -m venv .venv
 source .venv/bin/activate
-pip install px4-dataset-builder
+python -m pip install .
 ```
 
 For development:
 
 ```bash
-git clone https://github.com/LodeStonedrones/px4-dataset-builder.git
-cd px4-dataset-builder
-pip install -e '.[dev]'
+python -m pip install -e '.[dev]'
 make check
 ```
 
@@ -102,11 +102,11 @@ The v0.1 catalog covers:
 - public estimator flags, reset counters, test ratios, and selected innovations;
 - acceleration and gyro vibration metrics.
 
-Mappings, units, sensitivity, valid ranges, and interpolation policies live in `topics/catalog.py` and are copied to `metadata/signal_schema.json`. Unknown or unavailable fields are not guessed.
+Mappings, units, sensitivity, valid ranges, and interpolation policies live in `topics/catalog.py` and are copied to `metadata/signal_schema.json`. Unknown or unavailable fields are not guessed. The current automated compatibility evidence uses the included synthetic ULog; a public matrix of real PX4 release fixtures is planned for v0.2.
 
 ## Event rules
 
-The default YAML demonstrates `gps_lost`, `gps_degraded`, satellite/EPh/EPV checks, estimator reset/warning, vibration, battery levels, failsafe, takeoff, landing, mode change, sensor gaps, and PX4 warning/error messages.
+The default YAML demonstrates `gps_lost`, `gps_degraded`, satellite/EPH/EPV checks, estimator reset/warning, vibration, battery levels, failsafe, takeoff, landing, mode change, and sensor gaps. Logged PX4 warning and error messages are extracted separately as timestamped events.
 
 Four rule kinds are supported:
 
@@ -115,7 +115,7 @@ Four rule kinds are supported:
 - `edge`: a comparison changes from false to true;
 - `gap`: a null interval exceeds a duration.
 
-Every event records the rule, signal, observed value, threshold, interval, severity, and human-readable description. Overlapping events remain visible—for example, a critical battery interval can also satisfy the broader low-battery rule.
+Every rule-derived event records the rule name, signal, observed value, threshold, interval, severity, and description. Log-message events record their timestamp, severity, and message instead. Overlapping events remain visible—for example, a critical battery interval can also satisfy the broader low-battery rule.
 
 ## Resampling decisions
 
@@ -149,7 +149,7 @@ Anonymization reduces exposure; it cannot guarantee anonymity. Motion patterns, 
 
 ## Performance
 
-Each worker parses, normalizes, validates, and stages one flight at a time. The coordinator retains compact metadata/events while flight tables are written immediately, so thousands of logs are not held in RAM together. `--workers` enables process-level parallelism for independent logs. Parquet uses Zstandard compression.
+Each worker parses, normalizes, validates, and stages one flight at a time. The coordinator retains compact metadata and events while completed flight tables are written to disk instead of retaining the entire dataset in memory. `--workers` enables process-level parallelism for independent logs. Parquet uses Zstandard compression. No 100/1,000-log benchmark has been published yet; that evidence is part of the roadmap.
 
 Pandas is used in v0.1 because PyULog already exposes NumPy arrays and Pandas provides mature time-series and export behavior. Polars would help lazy scans and cohort aggregation after files are written, but adding it to the extraction path now would duplicate dataframe dependencies without a measured benefit. A Polars/DuckDB benchmark is planned before adopting either in the core.
 
@@ -169,14 +169,22 @@ The runtime is non-root and has no cloud configuration.
 
 The modular pipeline keeps parsing, normalization, synchronization, event detection, quality, anonymization, splitting, statistics, and export independent. See [Architecture](docs/architecture/ARCHITECTURE.md), [requirements analysis](docs/REQUIREMENTS.md), and the [roadmap](docs/ROADMAP.md).
 
-v0.1 is a working alpha. It intentionally does not implement ROS 2 bags, HDF5/Arrow IPC, a web dashboard, Hugging Face publishing, Flight Review integration, ArduPilot/MAVLink parsing, cloud execution, or a dataset registry. Those are documented future adapters and will not enter the core until schemas and privacy behavior are stable.
+v0.1 is a working alpha validated by unit and end-to-end tests using a deterministic synthetic ULog. It does not yet claim a real-flight PX4 compatibility matrix. It intentionally does not implement ROS 2 bags, HDF5/Arrow IPC, a web dashboard, Hugging Face publishing, Flight Review integration, ArduPilot/MAVLink parsing, cloud execution, or a dataset registry. Those are documented future adapters and will not enter the core until schemas and privacy behavior are stable.
+
+## Relationship to the PX4 ecosystem
+
+The parser is built on [PX4/PyULog](https://github.com/PX4/pyulog). This project focuses on local, synchronized dataset preparation, privacy controls, and flight-level dataset splits. It is complementary to [PX4 Flight Review v2](https://github.com/PX4/flight-review-rs), which provides log conversion, diagnostics, and interactive review.
+
+PX4 Dataset Builder is an independent community project. It is not an official PX4 project and is not affiliated with or endorsed by PX4 or the Dronecode Foundation.
 
 ## Contributing and community
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md), especially the log-data rules. Synthetic fixtures and authorized, meaningfully anonymized compatibility fixtures are valuable. Do not attach sensitive or operational logs to public issues.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md), especially the log-data rules. Synthetic fixtures and authorized fixtures that have been carefully reviewed for privacy are particularly valuable. Do not attach sensitive, personal, or operational flight logs to public issues.
 
-The [community strategy](docs/community/STRATEGY.md) proposes a neutral GitHub launch, a synthetic demo, PX4 Discuss/Discord feedback, useful upstream contributions, and ethical log requests.
+The [community strategy](docs/community/STRATEGY.md) proposes a synthetic demo, PX4 Discuss/Discord feedback, useful upstream contributions, ethical log requests, and a possible future transfer to a neutral community organization.
 
-## License choice
+## License
 
-Apache-2.0 was selected over MIT and BSD-3-Clause because all three are permissive, while Apache-2.0 also provides an explicit patent grant and contribution patent terms that are useful for collaboration among universities, individuals, and companies. It does not make PX4 trademarks part of this project. See [LICENSE](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE). Apache-2.0 is a permissive open-source license that includes an explicit patent license covering applicable contributor patent claims.
+
+The license covers this project. It does not grant rights to use PX4 or other third-party trademarks. PX4 is referenced solely to describe technical compatibility.

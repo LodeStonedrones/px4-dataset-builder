@@ -13,6 +13,8 @@ site/
 /dataset/
 *.ulg
 *.parquet
+*.csv
+*.jsonl
 *.db3
 *.mcap
 .DS_Store

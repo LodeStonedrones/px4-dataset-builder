@@ -53,8 +53,8 @@ def _topics(fast: tuple[int, ...], slow: tuple[int, ...]) -> tuple[Topic, ...]:
     gps_rows = tuple(
         (
             timestamp,
-            int((47.397742 + index * 0.000001) * 1e7),
-            int((8.545594 + index * 0.000001) * 1e7),
+            int((1.0 + index * 0.000001) * 1e7),
+            int((2.0 + index * 0.000001) * 1e7),
             int((500 + index * 0.1) * 1e3),
             5.0,
             1.0 if index < 5 else 5.5,

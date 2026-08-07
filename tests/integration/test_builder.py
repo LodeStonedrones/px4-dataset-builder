@@ -43,3 +43,36 @@ def test_anonymized_build_removes_absolute_location(synthetic_ulog: Path, tmp_pa
     assert metadata["drone_id"] is None
     assert "gps.latitude_deg" not in metadata["signals_available"]
     assert "gps.north_m" in metadata["signals_available"]
+
+
+def test_anonymized_build_redacts_failed_input_paths(synthetic_ulog: Path, tmp_path: Path) -> None:
+    inputs = tmp_path / "sensitive-inputs"
+    inputs.mkdir()
+    valid = inputs / "valid.ulg"
+    valid.write_bytes(synthetic_ulog.read_bytes())
+    broken = inputs / "customer-secret.ulg"
+    broken.write_bytes(b"not a ULog")
+    base = load_config()
+    config = base.model_copy(
+        update={"anonymization": base.anonymization.model_copy(update={"enabled": True})}
+    )
+
+    output = tmp_path / "anonymous-with-failure"
+    manifest = DatasetBuilder(config).build(inputs, output)
+    serialized = json.dumps(manifest)
+
+    assert manifest["flight_count"] == 1
+    assert manifest["failed_logs"][0]["source_file"].startswith("input-")
+    assert "customer-secret" not in serialized
+    assert str(inputs) not in serialized
+
+
+def test_validator_checks_every_manifest_file(synthetic_ulog: Path, tmp_path: Path) -> None:
+    output = tmp_path / "dataset"
+    DatasetBuilder(load_config()).build(synthetic_ulog, output)
+    (output / "statistics" / "summary.json").unlink()
+
+    result = validate_dataset(output)
+
+    assert not result["valid"]
+    assert any("manifest file statistics" in problem for problem in result["problems"])

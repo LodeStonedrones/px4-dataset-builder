@@ -1,8 +1,10 @@
 from pathlib import Path
 
+import yaml
 from typer.testing import CliRunner
 
 from px4_dataset_builder.cli.app import app
+from px4_dataset_builder.config.loader import load_config
 
 runner = CliRunner()
 
@@ -29,3 +31,18 @@ def test_cli_generates_parseable_example(tmp_path: Path) -> None:
     result = runner.invoke(app, ["generate-example", "--output", str(output)])
     assert result.exit_code == 0, result.output
     assert output.is_file()
+
+
+def test_cli_uses_configured_output_when_option_is_omitted(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    output = tmp_path / "configured-dataset"
+    payload = load_config().model_dump(mode="json")
+    payload["output_directory"] = str(output)
+    config = tmp_path / "config.yaml"
+    config.write_text(yaml.safe_dump(payload), encoding="utf-8")
+
+    result = runner.invoke(app, ["build", str(synthetic_ulog), "--config", str(config)])
+
+    assert result.exit_code == 0, result.output
+    assert (output / "manifest.json").is_file()
