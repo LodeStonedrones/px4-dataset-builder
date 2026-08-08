@@ -70,9 +70,10 @@ Suggested result schema:
 - [ ] Repository commit and source version are recorded.
 - [ ] Python and dependency versions are captured.
 - [ ] Hardware, OS, architecture, and filesystem are described.
-- [ ] Configuration and exact command are included.
+- [ ] Embedded effective configuration and digest match the command used.
 - [ ] Input identity uses an approved digest policy without leaking sensitive names.
 - [ ] Output passes `px4-dataset validate`.
+- [ ] Manifest artifact checksums pass without warnings.
 - [ ] Raw measurements and aggregation method are available.
 - [ ] Compatibility and performance claims are limited to the measured corpus.
 

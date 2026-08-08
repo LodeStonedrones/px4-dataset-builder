@@ -156,7 +156,7 @@ Status meanings:
 | CSV | **Validated** | Parametrized end-to-end integration test |
 | JSON Lines | **Validated** | Parametrized end-to-end integration test |
 | Manifest, metadata, events, statistics, and quality JSON | **Validated** | End-to-end build and dataset validation tests |
-| ROS 2 bag / MCAP | **Planned** | Proposed optional adapter for v0.8; not implemented |
+| ROS 2 bag / MCAP | **Not planned in core** | PyULog already provides `ulog2ros2bag`; document that maintained path instead of duplicating it |
 
 The living measurement and evidence policy is in [Benchmarks and compatibility evidence](docs/benchmarks.md).
 
@@ -171,7 +171,8 @@ dataset/
 ├── events/events.parquet      # or .csv/.jsonl
 ├── metadata/
 │   ├── <flight_id>.json
-│   └── signal_schema.json
+│   ├── signal_schema.json
+│   └── effective_config.json
 ├── statistics/summary.json
 ├── data_quality_report.json
 └── manifest.json
@@ -182,7 +183,7 @@ Additional placeholders for event and statistics output are specified in docs/as
 
 Each flight table is wide and ordered by `time_s`. `timestamp_us` retains the original ULog clock unless anonymization is enabled. A signal appears only when a documented uORB candidate exists. Missing intervals remain null when a gap exceeds `max_interpolation_gap_s`.
 
-The global manifest contains flight/sample counts, total duration, available sensor families, PX4 versions, event and split distributions, failed logs, quality summary, anonymization settings, and resampling policy.
+The global manifest contains flight/sample counts, total duration, available sensor families, PX4 versions, event and split distributions, failed logs, quality summary, the effective configuration digest, and SHA-256/size evidence for every generated artifact. Builds are staged beside the destination and installed only after all outputs are complete.
 
 ## Canonical signals
 
@@ -214,7 +215,7 @@ Every rule-derived event records the rule name, signal, observed value, threshol
 
 ## Methodology and privacy
 
-PX4 topics are asynchronous. The builder creates a regular flight-relative grid, 10 Hz by default. Continuous quantities use bounded linear interpolation; states use bounded previous-value semantics; headings and quaternions use bounded nearest samples; and no policy extrapolates beyond the configured gap. Read [Resampling and methodology](docs/methodology/RESAMPLING.md) before publishing results.
+PX4 topics are asynchronous. The builder creates a regular flight-relative grid, 10 Hz by default. Continuous quantities use bounded linear interpolation; states use bounded previous-value semantics; and headings and quaternions use bounded nearest samples. Previous/nearest values may be carried beyond the final source observation only within the configured gap; the output grid never extends beyond the logged flight duration. Read [Resampling and methodology](docs/methodology/RESAMPLING.md) before publishing results.
 
 All samples from one flight remain in exactly one split. Available strategies are seeded random flight assignment, stable flight hash, drone group, UTC date group, and complete event-signature stratification. Researchers must choose and audit the group representing their real generalization boundary.
 
@@ -222,9 +223,9 @@ Anonymization is opt-in because modifying evidence must be deliberate. It reduce
 
 ## Performance
 
-Workers process independent logs and write completed flight tables to disk rather than retaining an entire fleet in memory. Parquet uses Zstandard compression. No 100-log or 1,000-log public benchmark has been published. See [Benchmarks](docs/benchmarks.md) for the reproducibility protocol and empty results template.
+Workers process independent logs and return one processed flight at a time to the coordinator, which stages completed tables. Multiprocessing therefore incurs DataFrame serialization and its scaling has not yet been benchmarked. Parquet uses Zstandard compression. No 100-log or 1,000-log public benchmark has been published. See [Benchmarks](docs/benchmarks.md) for the reproducibility protocol and empty results template.
 
-Pandas is used because PyULog exposes NumPy arrays and Pandas provides mature time-series and export behavior. A Polars/DuckDB comparison is roadmap work and will not be claimed until reproducible measurements exist.
+Pandas is used because PyULog exposes NumPy arrays and Pandas provides mature time-series and export behavior. No alternative dataframe engine is planned unless published measurements identify a bottleneck that materially blocks adoption.
 
 ## Docker
 
@@ -254,7 +255,7 @@ The runtime is non-root and contains no cloud configuration.
 
 ## Project status and ecosystem relationship
 
-v0.1 is a working alpha validated by unit and end-to-end tests using a deterministic synthetic ULog. It does not claim a real-flight PX4 compatibility matrix. ROS 2 bags, HDF5/Arrow IPC, a web dashboard, Hugging Face publishing, Flight Review integration, ArduPilot/MAVLink parsing, cloud execution, and a dataset registry are not implemented.
+v0.1 is a working alpha validated by unit and end-to-end tests using a deterministic synthetic ULog. It does not claim a real-flight PX4 compatibility matrix. Development is adoption-first: release fixtures, measured evidence, and a safe contribution workflow take precedence over new formats or interfaces. ROS 2 bags, HDF5/Arrow IPC, web/desktop interfaces, hosted publishing, Flight Review duplication, ArduPilot/MAVLink parsing, cloud execution, and a dataset registry are outside the current core roadmap.
 
 The parser is built on [PX4/PyULog](https://github.com/PX4/pyulog). This project focuses on local, synchronized dataset preparation, privacy controls, and flight-level dataset splits. It is complementary to [PX4 Flight Review v2](https://github.com/PX4/flight-review-rs), which provides log conversion, diagnostics, and interactive review.
 

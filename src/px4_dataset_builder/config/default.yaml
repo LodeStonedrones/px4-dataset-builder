@@ -7,6 +7,7 @@ resampling:
   frequency_hz: 10.0
   continuous_method: linear
   max_interpolation_gap_s: 1.0
+  max_output_rows: 1000000
 
 event_rules:
   - name: gps_lost

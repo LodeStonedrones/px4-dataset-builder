@@ -1,8 +1,8 @@
-"""Canonical public signal names mapped to known PX4 uORB fields.
+"""Canonical public signal names mapped to reviewed PX4 uORB fields.
 
-Candidates are ordered from current/preferred to older representations. A missing
-candidate is reported as unavailable; values are never synthesized from an unrelated
-topic. The catalog is data, making PX4-version changes reviewable and testable.
+Candidates are ordered from newer to legacy representations. A missing candidate is
+reported as unavailable; values are never synthesized from a field with different
+semantics. The catalog is data, making PX4-version changes reviewable and testable.
 """
 
 from __future__ import annotations
@@ -37,10 +37,18 @@ def _signal(
 
 SIGNAL_CATALOG: dict[str, SignalSpec] = {
     "gps.latitude_deg": _signal(
-        "vehicle_gps_position.lat", unit="deg", scale=1e-7, valid_range=(-90, 90), sensitive=True
+        "vehicle_gps_position.lat",
+        unit="deg",
+        scale=1e-7,
+        valid_range=(-90, 90),
+        sensitive=True,
     ),
     "gps.longitude_deg": _signal(
-        "vehicle_gps_position.lon", unit="deg", scale=1e-7, valid_range=(-180, 180), sensitive=True
+        "vehicle_gps_position.lon",
+        unit="deg",
+        scale=1e-7,
+        valid_range=(-180, 180),
+        sensitive=True,
     ),
     "gps.altitude_m": _signal(
         "vehicle_gps_position.alt",
@@ -61,7 +69,6 @@ SIGNAL_CATALOG: dict[str, SignalSpec] = {
     ),
     "gps.heading_rad": _signal(
         "vehicle_gps_position.heading",
-        "vehicle_gps_position.cog_rad",
         unit="rad",
         interpolation="nearest",
         valid_range=(-6.4, 6.4),
@@ -138,7 +145,6 @@ SIGNAL_CATALOG: dict[str, SignalSpec] = {
     "battery.warning": _signal("battery_status.warning", unit="enum", interpolation="previous"),
     "flight.mode": _signal(
         "vehicle_status.nav_state",
-        "commander_state.main_state",
         unit="enum",
         interpolation="previous",
     ),

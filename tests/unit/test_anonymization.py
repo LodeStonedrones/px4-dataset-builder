@@ -23,7 +23,11 @@ def metadata() -> FlightMetadata:
         imu_available=False,
         battery_available=False,
         drone_id="hardware-id",
-        source_info={"sys_uuid": "hardware-id", "ver_sw": "v1.15"},
+        source_info={
+            "sys_uuid": "hardware-id",
+            "ver_sw": "v1.15",
+            "time_ref_utc": 1_767_225_600_000_000,
+        },
     )
 
 
@@ -59,4 +63,20 @@ def test_relative_gps_and_metadata_redaction() -> None:
     assert redacted.source_file == f"flight-{'a' * 16}.ulg"
     assert redacted.drone_id is None
     assert "sys_uuid" not in redacted.source_info
+    assert "time_ref_utc" not in redacted.source_info
     assert "sensitive" not in events[0].description
+
+
+def test_relative_gps_drops_an_unpaired_absolute_coordinate() -> None:
+    frame = pd.DataFrame({"time_s": [0.0], "gps.latitude_deg": [45.0]})
+
+    data, redacted, _ = Anonymizer().apply(
+        frame,
+        metadata(),
+        [],
+        AnonymizationConfig(enabled=True, gps_mode="relative"),
+    )
+
+    assert "gps.latitude_deg" not in data
+    assert "gps.longitude_deg" not in data
+    assert not redacted.gps_available

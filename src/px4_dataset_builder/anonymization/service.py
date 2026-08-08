@@ -12,6 +12,7 @@ from px4_dataset_builder.models import FlightEvent, FlightMetadata
 from px4_dataset_builder.utils.hashing import private_alias
 
 EARTH_RADIUS_M = 6_378_137.0
+ALWAYS_PRIVATE_METADATA = {"time_ref_utc"}
 
 
 class Anonymizer:
@@ -43,7 +44,7 @@ class Anonymizer:
             "source_info": {
                 key: value
                 for key, value in metadata.source_info.items()
-                if key not in config.remove_metadata
+                if key not in ALWAYS_PRIVATE_METADATA and key not in config.remove_metadata
             },
             "signals_available": sorted(
                 str(column) for column in result.columns if column not in {"time_s", "timestamp_us"}
@@ -88,7 +89,7 @@ class Anonymizer:
                 frame["gps.east_m"] = (
                     np.radians(longitude - lon0) * EARTH_RADIUS_M * cos(radians(lat0))
                 )
-            frame.drop(columns=[latitude_name, longitude_name], inplace=True)
+        frame.drop(columns=[latitude_name, longitude_name], errors="ignore", inplace=True)
         if relative_altitude and "gps.altitude_m" in frame:
             altitude = frame["gps.altitude_m"].to_numpy(dtype=np.float64)
             finite = altitude[np.isfinite(altitude)]

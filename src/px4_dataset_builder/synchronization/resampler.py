@@ -63,7 +63,7 @@ def resample(
         return result
 
     interpolated = np.interp(target_time, times, values)
-    exact = (right < len(times)) & np.isclose(times[right_clipped], target_time, atol=1e-9)
+    exact = (right < len(times)) & np.isclose(times[right_clipped], target_time, atol=1e-9, rtol=0)
     bracketed = (right > 0) & (right < len(times))
     gap = times[right_clipped] - times[left]
     valid = exact | (bracketed & (gap <= max_gap_s))

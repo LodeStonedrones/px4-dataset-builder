@@ -81,13 +81,14 @@ sequenceDiagram
         Builder->>Exporter: stage completed flight
     end
     Builder->>Builder: assign whole-flight/group splits
-    Builder->>Exporter: finalize flight tables and reports
-    Exporter-->>User: dataset directory
+    Builder->>Exporter: finalize flight tables and reports in sibling staging
+    Builder->>Builder: checksum artifacts and transactionally replace dataset
+    Exporter-->>User: complete dataset directory
     User->>Validator: validate dataset
     Validator-->>User: integrity result
 ```
 
-The validator is an explicit command after generation; the builder itself creates the manifest and referenced artifacts. A failed log is recorded in dataset evidence while successfully processed flights remain usable. If every input fails, the build fails.
+The validator is an explicit command after generation; the builder creates the manifest, effective configuration, and checksum evidence. A failed log is recorded while successfully processed flights remain usable. If every input fails, the build fails and an existing destination is preserved. With `--force`, the prior dataset is replaced only after the new sibling staging directory is complete.
 
 ## Flight processing
 
@@ -128,10 +129,10 @@ The flight is the aggregate boundary for parsing, quality, events, privacy, and 
 
 ## Extension contracts
 
-Future readers should return `ParsedFlight`. Future output formats should implement the existing tabular writer semantics and declare conversion fidelity. ROS 2, HDF5, or Arrow adapters must preserve `time_s`, canonical names, nulls, and the signal schema. A plugin registry should use entry points only after the schema reaches stability; v0.1 intentionally avoids a global mutable registry.
+Any future reader would need to return `ParsedFlight`, and any future output would need an explicit consumer and fidelity contract. No new reader, output format, or plugin registry is currently planned; v0.1 deliberately keeps these extension points conceptual rather than adding maintenance surface.
 
 ArduPilot and MAVLink require independent source catalogs rather than treating uORB fields as universal. Cloud processing is outside the core and cannot change local behavior.
 
 ## Security and integrity
 
-Output paths derive from sanitized identifiers and fixed directories. Dataset validation resolves every manifest path and rejects references outside the dataset. Existing non-empty outputs are refused unless the user explicitly supplies `--force`. ROS or cloud credentials do not exist in the core.
+Output paths derive from sanitized identifiers and fixed directories. Dataset validation resolves every manifest path, rejects references outside the dataset, checks metadata identity, and verifies SHA-256/size evidence in manifest schema 1.1. Existing non-empty outputs are refused unless the user explicitly supplies `--force`; replacement is transactional. ROS or cloud credentials do not exist in the core.

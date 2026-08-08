@@ -76,3 +76,109 @@ def test_validator_checks_every_manifest_file(synthetic_ulog: Path, tmp_path: Pa
 
     assert not result["valid"]
     assert any("manifest file statistics" in problem for problem in result["problems"])
+
+
+def test_force_rejects_output_parent_without_deleting_input(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    source_directory = tmp_path / "source"
+    source_directory.mkdir()
+    source = source_directory / "flight.ulg"
+    source.write_bytes(synthetic_ulog.read_bytes())
+
+    with pytest.raises(ValueError, match="one of its parents"):
+        DatasetBuilder(load_config()).build(source, tmp_path, force=True)
+
+    assert source.read_bytes() == synthetic_ulog.read_bytes()
+
+
+@pytest.mark.parametrize("anonymized", [False, True])
+def test_duplicate_ulog_content_is_skipped_without_overwriting(
+    synthetic_ulog: Path, tmp_path: Path, anonymized: bool
+) -> None:
+    inputs = tmp_path / "inputs"
+    inputs.mkdir()
+    (inputs / "first.ulg").write_bytes(synthetic_ulog.read_bytes())
+    (inputs / "second.ulg").write_bytes(synthetic_ulog.read_bytes())
+    base = load_config()
+    config = base.model_copy(
+        update={"anonymization": base.anonymization.model_copy(update={"enabled": anonymized})}
+    )
+
+    output = tmp_path / "dataset"
+    manifest = DatasetBuilder(config).build(inputs, output)
+
+    assert manifest["flight_count"] == 1
+    assert len(manifest["failed_logs"]) == 1
+    assert "Duplicate ULog content" in manifest["failed_logs"][0]["error"]
+    assert validate_dataset(output)["valid"]
+
+
+def test_force_preserves_existing_dataset_when_replacement_fails(tmp_path: Path) -> None:
+    source = tmp_path / "broken.ulg"
+    source.write_bytes(b"not a ULog")
+    output = tmp_path / "dataset"
+    output.mkdir()
+    marker = output / "keep.txt"
+    marker.write_text("original", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="failed to process"):
+        DatasetBuilder(load_config()).build(source, output, force=True)
+
+    assert marker.read_text(encoding="utf-8") == "original"
+    assert not list(tmp_path.glob(".dataset.build-*"))
+
+
+def test_force_replaces_existing_dataset_only_after_success(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    output = tmp_path / "dataset"
+    output.mkdir()
+    marker = output / "old-dataset.txt"
+    marker.write_text("old", encoding="utf-8")
+
+    manifest = DatasetBuilder(load_config()).build(synthetic_ulog, output, force=True)
+
+    assert manifest["flight_count"] == 1
+    assert not marker.exists()
+    assert validate_dataset(output)["valid"]
+    assert not list(tmp_path.glob(".dataset.previous-*"))
+
+
+def test_manifest_records_effective_config_and_detects_artifact_tampering(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    output = tmp_path / "dataset"
+    manifest = DatasetBuilder(load_config()).build(synthetic_ulog, output)
+
+    assert manifest["schema_version"] == "1.1"
+    assert manifest["configuration"]["file"] == "metadata/effective_config.json"
+    assert any("/flights/" in path and path.endswith(".parquet") for path in manifest["artifacts"])
+    assert validate_dataset(output)["valid"]
+
+    index = json.loads((output / "flights" / "index.json").read_text(encoding="utf-8"))
+    data_file = output / index[0]["data_file"]
+    with data_file.open("ab") as stream:
+        stream.write(b"tampered")
+
+    result = validate_dataset(output)
+    assert not result["valid"]
+    assert any("checksum mismatch" in problem for problem in result["problems"])
+
+
+def test_validator_accepts_legacy_manifest_with_checksum_warning(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    output = tmp_path / "dataset"
+    DatasetBuilder(load_config()).build(synthetic_ulog, output)
+    manifest_path = output / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["schema_version"] = "1.0"
+    manifest.pop("artifacts")
+    manifest.pop("configuration")
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    result = validate_dataset(output)
+
+    assert result["valid"]
+    assert result["warnings"] == ["Manifest schema 1.0 has no required artifact checksums"]

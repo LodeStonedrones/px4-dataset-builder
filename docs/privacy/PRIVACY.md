@@ -4,6 +4,8 @@ ULogs can reveal exact coordinates, UTC time, routes, mission states, vehicle UU
 
 The project never uploads data. Anonymization can remove absolute coordinates, create local coordinates, remove original timestamps, hash names, remove selected metadata, and redact free text. It is a transformation, not a guarantee: trajectory shape, rare configuration, duration, event sequence, and source hashes can still enable linkage.
 
+The generated provenance includes the effective configuration. Custom rule names and descriptions are therefore publishable dataset content: do not place customer names, mission identifiers, internal thresholds, or other confidential text in a configuration intended for redistribution.
+
 Before sharing a dataset:
 
 1. confirm that the owner/operator authorizes the intended use and redistribution;

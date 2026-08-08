@@ -27,11 +27,20 @@ class SignalNormalizer:
 
         step = 1.0 / config.frequency_hz
         duration = flight.duration_seconds
-        target = np.arange(0.0, duration + step / 2, step, dtype=np.float64)
+        sample_count = int(np.floor(duration * config.frequency_hz + 1e-9)) + 1
+        if sample_count > config.max_output_rows:
+            raise ValueError(
+                "Normalized flight would contain "
+                f"{sample_count} rows, exceeding max_output_rows={config.max_output_rows}"
+            )
+        target = np.arange(sample_count, dtype=np.float64) * step
+        timestamp_offsets = np.rint(target * 1_000_000).astype(np.int64)
+        maximum_timestamp = np.iinfo(np.int64).max
+        if not 0 <= flight.start_timestamp_us <= maximum_timestamp - int(timestamp_offsets[-1]):
+            raise ValueError("Normalized timestamps exceed the signed 64-bit output range")
         output: dict[str, np.ndarray] = {
             "time_s": target,
-            "timestamp_us": flight.start_timestamp_us
-            + np.rint(target * 1_000_000).astype(np.int64),
+            "timestamp_us": flight.start_timestamp_us + timestamp_offsets,
         }
         for name in selected:
             spec = SIGNAL_CATALOG[name]
@@ -62,7 +71,10 @@ class SignalNormalizer:
             topic_name, field_name = candidate.split(".", 1)
             keys = [
                 topic_name,
-                *sorted(key for key in flight.topics if key.startswith(f"{topic_name}#")),
+                *sorted(
+                    (key for key in flight.topics if key.startswith(f"{topic_name}#")),
+                    key=lambda key: int(key.rsplit("#", 1)[1]),
+                ),
             ]
             for key in keys:
                 frame = flight.topics.get(key)
