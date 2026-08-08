@@ -25,7 +25,7 @@ Useful upstream contributions build trust: PyULog parser bugs with minimal repro
 ## Feedback and pull requests
 
 - Enable Discussions for signal-schema and methodology proposals.
-- Use issue forms that ask for PX4 release, topic inventory, expected mapping, privacy status, and whether a synthetic reproduction is possible.
+- Use the dataset contribution form to ask for PX4 release, reviewed topic inventory, expected compatibility value, privacy status, authorization, licensing, and whether a synthetic reproduction is possible.
 - Label real, bounded first contributions: one field mapping, one quality assertion, one docs example, one compatibility fixture.
 - Publish architecture decisions for schema, resampling, privacy, and format loss.
 - Respond within a stated service goal and say honestly when maintainers lack capacity.

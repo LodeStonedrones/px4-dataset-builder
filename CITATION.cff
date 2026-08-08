@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the exact version and commit. No DOI has been issued."
+title: "PX4 Dataset Builder"
+type: software
+authors:
+  - name: "PX4 Dataset Builder contributors"
+version: 0.1.0
+repository-code: "https://github.com/LodeStonedrones/px4-dataset-builder"
+url: "https://github.com/LodeStonedrones/px4-dataset-builder"
+license: Apache-2.0
+keywords:
+  - PX4
+  - ULog
+  - UAV
+  - robotics
+  - dataset

@@ -1,31 +1,61 @@
-name: Feature or schema proposal
-description: Propose a transparent, interoperable feature
-title: "[Proposal]: "
-labels: ["type:proposal", "needs-design"]
+name: Feature request
+description: Propose a focused, transparent, and interoperable improvement
+title: "[Feature]: "
+labels: ["enhancement"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Features must preserve local-first, privacy-first, deterministic behavior and must not introduce proprietary navigation, control, AI, or cloud requirements. Large schema or methodology proposals should begin in Discussions.
   - type: textarea
     id: problem
     attributes:
       label: Community problem
-      description: Describe the workflow problem independently from the implementation.
+      description: Describe the user or research problem independently from a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe observable behavior and acceptance criteria. Do not claim functionality already exists.
     validations:
       required: true
   - type: textarea
     id: evidence
     attributes:
-      label: Public PX4 evidence
-      description: Link public message definitions, documentation, or authorized examples.
+      label: Public evidence
+      description: Link public PX4 message definitions, documentation, papers, or authorized examples.
     validations:
       required: true
   - type: textarea
-    id: proposal
+    id: alternatives
     attributes:
-      label: Proposed behavior and alternatives
+      label: Alternatives considered
+      description: Include documentation-only or downstream-tool alternatives where applicable.
     validations:
       required: true
   - type: textarea
     id: risks
     attributes:
-      label: Compatibility, methodology, privacy, and IP risks
+      label: Compatibility, methodology, privacy, dependency, and IP risks
     validations:
       required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Explicit non-goals
+      description: State what this proposal will not implement.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: This proposal does not require cloud processing or proprietary logic.
+          required: true
+        - label: I distinguished implemented, experimental, and planned behavior.
+          required: true
+        - label: I have not included unauthorized data or third-party intellectual property.
+          required: true

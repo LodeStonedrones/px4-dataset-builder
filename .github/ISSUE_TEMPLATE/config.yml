@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and community support
+    url: https://github.com/LodeStonedrones/px4-dataset-builder/discussions
+    about: Ask usage and research questions without attaching sensitive flight data.
+  - name: Private security report
+    url: https://github.com/LodeStonedrones/px4-dataset-builder/security/advisories/new
+    about: Report a vulnerability privately. Do not attach a sensitive ULog unless requested.
