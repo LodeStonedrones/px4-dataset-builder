@@ -71,7 +71,10 @@ class SignalNormalizer:
             topic_name, field_name = candidate.split(".", 1)
             keys = [
                 topic_name,
-                *sorted(key for key in flight.topics if key.startswith(f"{topic_name}#")),
+                *sorted(
+                    (key for key in flight.topics if key.startswith(f"{topic_name}#")),
+                    key=lambda key: int(key.rsplit("#", 1)[1]),
+                ),
             ]
             for key in keys:
                 frame = flight.topics.get(key)

@@ -42,3 +42,24 @@ def test_random_split_is_reproducible() -> None:
     flights = [flight(str(index), str(index)) for index in range(20)]
     config = SplitConfig(seed=7)
     assert assign_splits(flights, config) == assign_splits(flights, config)
+
+
+def test_flight_split_is_stable_when_the_corpus_changes() -> None:
+    original = [flight("a", "one"), flight("b", "two")]
+    expanded = [*original, flight("c", "three")]
+    config = SplitConfig(strategy=SplitStrategy.FLIGHT, seed=7)
+
+    original_assignments = assign_splits(original, config)
+    expanded_assignments = assign_splits(expanded, config)
+
+    assert expanded_assignments["a"] == original_assignments["a"]
+    assert expanded_assignments["b"] == original_assignments["b"]
+
+
+def test_missing_drone_identity_is_kept_in_one_group() -> None:
+    flights = [flight("a", ""), flight("b", "")]
+    config = SplitConfig(strategy=SplitStrategy.DRONE, train=0.5, validation=0.5, test=0)
+
+    assignments = assign_splits(flights, config)
+
+    assert assignments["a"] == assignments["b"]

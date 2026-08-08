@@ -1,95 +1,79 @@
-# Roadmap and milestones
+# Adoption-first roadmap
 
-Roadmap versions describe exit criteria, not promised dates. Compatibility, privacy, and documentation are part of every milestone.
+PX4 Dataset Builder is under a feature freeze. The core already converts ULogs into
+synchronized, documented, privacy-aware datasets. New code is accepted only when it
+removes a demonstrated adoption blocker or expands compatibility with evidence.
 
-## v0.1 — ULog to tabular MVP
+Roadmap items are exit criteria, not promised dates.
 
-- Single/multi-log discovery and PyULog parsing.
-- Canonical catalog, synchronization, CSV/JSONL/Parquet.
-- Metadata, rule events, quality report, statistics, split, anonymization.
-- Synthetic ULog, tests, CLI, Docker, CI, governance.
+## Current gate — trustworthy alpha
 
-The implementation in this repository deliberately delivers more of the foundation than the original “parser + CSV” milestone so later releases share one schema.
+- Transactional builds that preserve an existing dataset on failure.
+- Manifested effective configuration and artifact checksum evidence.
+- Strict configuration, privacy, split, event, and resampling regression tests.
+- Wheel and container smoke tests plus release tag/version verification.
+- Accurate documentation with no unmeasured performance or compatibility claims.
 
-## v0.2 — Compatibility and provenance
+## Adoption gate — evidence before breadth
 
-- Public ULog fixture matrix for supported PX4 releases.
-- Reproducibility manifest with config digest and input-hash policy.
-- Detailed missing-signal/applicability report.
-- Incremental cache keyed by source hash, tool version, and configuration.
-- Chunked processing benchmark for long/high-rate logs.
+1. Collect redistributable PX4 release fixtures with provenance and privacy sidecars.
+2. Validate and document current PX4 field mappings release by release.
+3. Publish one small, non-operational example dataset and a copyable research workflow.
+4. Publish measured runtime, peak-memory, and output-size results for that corpus.
+5. Provide a local contribution/privacy preview that explains exactly what a proposed
+   fixture bundle contains before a user shares anything.
 
-## v0.3 — Event semantics
+The project should spend more effort on these five outcomes than on new output formats,
+visualization, or integrations.
 
-- Rule schema versioning and event unit validation.
-- Hysteresis/cooldown primitives that remain transparent.
-- Additional public PX4 state transitions with release-aware enum maps.
-- Event review tables and golden fixtures.
+## Candidate code work
 
-## v0.4 — Columnar analytics
+Only two feature families currently pass the adoption threshold:
 
-- Stable Arrow schema and optional Arrow IPC export.
-- Polars/DuckDB benchmark for lazy multi-flight statistics.
-- Quantile/histogram summaries without loading all samples.
-- Automatic dataset card in Markdown/HTML.
+- **Release-aware compatibility packs:** per-candidate PX4 field transformations,
+  versioned fixture inventories, and generated compatibility evidence.
+- **Contribution bundle preview:** a local, non-uploading command that validates consent
+  metadata, previews privacy transformations, and creates a reviewable bundle.
 
-## v0.5 — Split audit
+Both require design issues, tests, and public evidence before implementation. Neither may
+upload data or claim anonymous output.
 
-- Explicit group-key report and cross-split leakage scanner.
-- Multi-label iterative event stratification.
-- Time-forward/firmware-forward evaluation policies.
-- Split manifest reuse across rebuilds.
+## Explicitly deferred
 
-## v0.6 — Privacy hardening
+- Dataset card generation may be reconsidered after real users produce datasets.
+- Additional summary statistics require a concrete research request and schema review.
+- Performance-engine changes require published measurements from the existing pipeline.
+- ROS 2 workflows should initially document PyULog's maintained `ulog2ros2bag` converter
+  rather than duplicate it.
 
-- Redaction preview/diff and configurable source-hash removal or keyed pseudonyms.
-- Metadata risk scanner and policy presets.
-- Coordinate/time transformation audit.
-- Independent privacy review and public threat model.
+## Not planned in the core
 
-## v0.7 — Quality and scale
+- Flight-health reports, anomaly scoring, learned models, or safety conclusions.
+- Interactive timelines, automatic flight plots, flight comparison, or a desktop GUI.
+- Web UI, REST API, hosted registry, cloud processing, telemetry, or automatic upload.
+- HDF5, Arrow IPC, DuckDB, or other formats without a concrete consumer and fidelity
+  contract; Parquet already covers the columnar research path.
+- A plugin framework before a stable third-party extension need exists.
+- Flight Review or QGroundControl functionality.
 
-- Version-aware sampling-rate expectations.
-- Truncated/corrupt log recovery policy with explicit fidelity status.
-- Property/fuzz tests for malformed ULog input.
-- 100/1,000-log public synthetic benchmark and memory budgets.
+## Adoption evidence
 
-## v0.8 — Interchange adapters
+The next release is ready for wider promotion only when:
 
-- ROS 2 bag and MCAP writers behind optional dependencies.
-- HDF5 writer only with a documented schema/fidelity contract.
-- Round-trip and dropped-field reports.
+- at least two PX4 release families have redistributable fixture evidence;
+- a clean-environment wheel installation and container smoke test pass in CI;
+- the example workflow produces a validator-clean dataset;
+- privacy limitations and contribution licensing are visible before any log request;
+- benchmark tables contain measured results rather than estimates.
 
-## v0.9 — Ecosystem beta
+## Focused backlog
 
-- Read-only dataset browser and local dashboard.
-- Hugging Face dataset-card/export package generation, never automatic upload.
-- Flight Review integration proposal or sidecar links after maintainer feedback.
-- Dataset registry design with local catalogs first.
-
-## v1.0 — Stable public release
-
-- Stable canonical schema and migration policy.
-- Semantic-versioned Python/CLI contracts.
-- Supported PX4 release matrix and deprecation windows.
-- Security/privacy review, reproducible releases, SBOM and signed artifacts.
-- Complete tutorials for research, debugging, and ML leakage prevention.
-
-## Later research, kept outside the core
-
-ArduPilot DataFlash and raw MAVLink readers can share the output manifest but require independent source catalogs. A PX4 plugin may export recommended logging profiles, never control logic. Cloud processing, registries, and collaborative dashboards remain opt-in deployments with separate threat models. Learned anomaly detectors belong in downstream repositories consuming exported datasets, not in the reference builder.
-
-## Initial GitHub backlog
-
-| Issue | Labels | Milestone | Acceptance |
-|---|---|---|---|
-| Add PX4 v1.14–v1.16 authorized fixtures | `area:parser`, `needs-data`, `privacy` | v0.2 | Provenance sidecars and schema inventory pass CI |
-| Publish manifest JSON Schema | `area:schema`, `help-wanted` | v0.2 | Valid/invalid fixtures and CI validation |
-| Add config/input digest | `area:provenance` | v0.2 | Rebuild can prove equivalent inputs/policy |
-| Add analyzer applicability table | `area:quality`, `good-first-issue` | v0.2 | Missing candidate has explicit reason |
-| Validate PX4 navigation-state enum by release | `area:events`, `needs-px4-review` | v0.3 | Public-source mapping and golden tests |
-| Benchmark Pandas versus Polars extraction | `area:performance` | v0.4 | Reproducible peak-RSS/runtime results |
-| Add cross-split group audit | `area:split`, `good-first-issue` | v0.5 | Validator fails on injected leakage |
-| Build anonymization preview command | `area:privacy`, `help-wanted` | v0.6 | Shows removed/derived fields before writing |
-| Fuzz ULog parser boundary | `area:security`, `area:parser` | v0.7 | Seed corpus and bounded crash reproductions |
-| Design ROS 2 bag fidelity contract | `area:ros2`, `design` | v0.8 | Mapping/loss document accepted before code |
+| Issue | Acceptance evidence |
+|---|---|
+| Add authorized PX4 release fixtures | Provenance, license, privacy sidecar, expected topic inventory |
+| Review release-aware field transforms | Official message definitions and golden output tests |
+| Publish the example research dataset | Rebuild command, config digest, checksums, citation and data license |
+| Measure the reference corpus | Raw timings, peak RSS, environment, five repetitions, validation result |
+| Design contribution bundle preview | No network path; explicit consent and privacy review output |
+| Publish manifest JSON Schema | Valid/invalid fixtures and CI validation |
+| Add bounded parser resource policy | Hostile-input tests and documented limits |

@@ -91,7 +91,8 @@ class EventDetector:
     ) -> list[FlightEvent]:
         assert rule.operator is not None and rule.threshold is not None
         condition = OPERATORS[rule.operator](values, float(rule.threshold)) & np.isfinite(values)
-        indices = np.flatnonzero(condition[1:] & ~condition[:-1]) + 1
+        valid_pair = np.isfinite(values[1:]) & np.isfinite(values[:-1])
+        indices = np.flatnonzero(valid_pair & condition[1:] & ~condition[:-1]) + 1
         return [
             EventDetector._event(flight_id, rule, time[index], time[index], values[index])
             for index in indices

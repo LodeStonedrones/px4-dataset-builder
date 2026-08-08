@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import shutil
+import tempfile
+import uuid
 from collections.abc import Iterator
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -24,6 +28,7 @@ from px4_dataset_builder.quality.analyzer import QualityAnalyzer
 from px4_dataset_builder.signals.normalizer import SignalNormalizer
 from px4_dataset_builder.statistics.aggregate import aggregate_statistics
 from px4_dataset_builder.topics.catalog import SIGNAL_CATALOG
+from px4_dataset_builder.utils.hashing import sha256_file
 
 
 @dataclass(slots=True)
@@ -56,13 +61,25 @@ class DatasetBuilder:
             raise ValueError(
                 f"Refusing to use a broad or working directory as output: {destination}"
             )
-        if destination.exists() and any(destination.iterdir()):
-            if not force:
-                raise FileExistsError(
-                    f"Output directory is not empty: {destination}. Use --force to replace it."
-                )
-            shutil.rmtree(destination)
-        destination.mkdir(parents=True, exist_ok=True)
+        if destination.exists() and not destination.is_dir():
+            raise NotADirectoryError(f"Output path is not a directory: {destination}")
+        if destination.exists() and any(destination.iterdir()) and not force:
+            raise FileExistsError(
+                f"Output directory is not empty: {destination}. Use --force to replace it."
+            )
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        temporary = Path(
+            tempfile.mkdtemp(prefix=f".{destination.name}.build-", dir=destination.parent)
+        )
+        try:
+            manifest = self._build_dataset(paths, temporary)
+            self._install_dataset(temporary, destination, force=force)
+            return manifest
+        finally:
+            if temporary.exists():
+                shutil.rmtree(temporary)
+
+    def _build_dataset(self, paths: list[Path], destination: Path) -> dict[str, Any]:
         staging = destination / ".staging"
         staging.mkdir()
         exporter = TabularExporter(self.config.output_format)
@@ -180,9 +197,53 @@ class DatasetBuilder:
         statistics = aggregate_statistics(final_flights, failures)
         write_json(statistics, destination / "statistics" / "summary.json")
         write_json(self._schema(), destination / "metadata" / "signal_schema.json")
-        manifest = self._manifest(final_flights, index, failures, statistics, event_path)
+        configuration_path = destination / "metadata" / "effective_config.json"
+        write_json(self._effective_configuration(), configuration_path)
+        artifacts = self._artifact_index(destination)
+        manifest = self._manifest(
+            final_flights,
+            index,
+            failures,
+            statistics,
+            event_path,
+            artifacts,
+            configuration_path,
+        )
         write_json(manifest, destination / "manifest.json")
         return manifest
+
+    @staticmethod
+    def _install_dataset(temporary: Path, destination: Path, *, force: bool) -> None:
+        if destination.exists() and any(destination.iterdir()) and not force:
+            raise FileExistsError(
+                f"Output directory became non-empty during the build: {destination}"
+            )
+        backup: Path | None = None
+        if destination.exists():
+            backup = destination.with_name(f".{destination.name}.previous-{uuid.uuid4().hex}")
+            destination.replace(backup)
+        try:
+            temporary.replace(destination)
+        except Exception:
+            if backup is not None and backup.exists() and not destination.exists():
+                backup.replace(destination)
+            raise
+        if backup is not None:
+            shutil.rmtree(backup)
+
+    def _effective_configuration(self) -> dict[str, Any]:
+        return self.config.model_dump(mode="json", exclude={"output_directory"})
+
+    @staticmethod
+    def _artifact_index(destination: Path) -> dict[str, dict[str, str | int]]:
+        return {
+            str(path.relative_to(destination)): {
+                "sha256": sha256_file(path),
+                "size_bytes": path.stat().st_size,
+            }
+            for path in sorted(destination.rglob("*"))
+            if path.is_file()
+        }
 
     def _failure_record(self, path: Path, error: str, private_name: str) -> dict[str, str]:
         if not self.config.anonymization.enabled:
@@ -217,6 +278,8 @@ class DatasetBuilder:
         failures: list[dict[str, str]],
         statistics: dict[str, Any],
         event_path: Path,
+        artifacts: dict[str, dict[str, str | int]],
+        configuration_path: Path,
     ) -> dict[str, Any]:
         split_distribution: dict[str, int] = {"train": 0, "validation": 0, "test": 0}
         for item in index:
@@ -228,8 +291,12 @@ class DatasetBuilder:
                 for signal in flight.metadata.signals_available
             }
         )
+        configuration = self._effective_configuration()
+        configuration_digest = hashlib.sha256(
+            json.dumps(configuration, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
         return {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "tool": {"name": "px4-dataset-builder", "version": __version__},
             "generated_at": datetime.now(UTC).isoformat(),
             "processing": "local-only",
@@ -245,12 +312,18 @@ class DatasetBuilder:
             "incomplete_log_count": statistics["incomplete_log_count"],
             "anonymization": self.config.anonymization.model_dump(mode="json"),
             "resampling": self.config.resampling.model_dump(mode="json"),
+            "configuration": {
+                "file": str(configuration_path.relative_to(configuration_path.parents[1])),
+                "sha256": configuration_digest,
+            },
+            "artifacts": artifacts,
             "files": {
                 "flight_index": "flights/index.json",
                 "events": str(event_path.relative_to(event_path.parents[1])),
                 "statistics": "statistics/summary.json",
                 "quality": "data_quality_report.json",
                 "signal_schema": "metadata/signal_schema.json",
+                "effective_config": "metadata/effective_config.json",
             },
         }
 
@@ -323,7 +396,7 @@ def _metadata(
         flight_id=parsed.flight_id,
         source_file=str(parsed.source),
         source_sha256=parsed.source_sha256,
-        px4_version=str(parsed.info.get("ver_sw") or parsed.info.get("ver_sw_release") or "")
+        px4_version=str(parsed.info.get("ver_sw_release") or parsed.info.get("ver_sw") or "")
         or None,
         duration_seconds=parsed.duration_seconds,
         start_timestamp=start.isoformat() if start else None,

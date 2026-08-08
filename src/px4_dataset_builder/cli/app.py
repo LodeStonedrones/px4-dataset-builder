@@ -97,7 +97,7 @@ def inspect_command(
     log: Annotated[Path, typer.Argument(exists=True, readable=True)],
     config_path: Annotated[Path | None, typer.Option("--config", "-c")] = None,
 ) -> None:
-    """Inspect source topics and canonical signals without writing a dataset."""
+    """Inspect selected source topics and canonical signals without writing a dataset."""
     config = load_config(config_path)
     path, processed, error = process_flight(log, config)
     if error or processed is None:
@@ -139,7 +139,7 @@ def stats_command(dataset: Annotated[Path, typer.Argument(exists=True, file_okay
 def validate_command(
     dataset: Annotated[Path, typer.Argument(exists=True, file_okay=False)],
 ) -> None:
-    """Validate a dataset manifest and all referenced files."""
+    """Validate dataset structure, metadata, and available artifact checksums."""
     result = validate_dataset(dataset)
     console.print_json(json.dumps(result))
     if not result["valid"]:

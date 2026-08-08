@@ -20,6 +20,13 @@ SPLITS = ("train", "validation", "test")
 def assign_splits(flights: list[ProcessedFlight], config: SplitConfig) -> dict[str, str]:
     if not flights:
         return {}
+    if config.strategy == SplitStrategy.FLIGHT:
+        return {
+            flight.metadata.flight_id: _stable_partition(
+                flight.metadata.flight_id, config, SplitStrategy.FLIGHT.value
+            )
+            for flight in flights
+        }
     if config.strategy == SplitStrategy.EVENT:
         strata: dict[str, list[ProcessedFlight]] = defaultdict(list)
         for flight in flights:
@@ -82,16 +89,22 @@ def _assign_groups(
 
 
 def _drone_key(item: ProcessedFlight) -> str:
-    return item.metadata.drone_id or f"unknown:{item.metadata.flight_id}"
+    return item.metadata.drone_id or "unknown"
 
 
 def _date_key(item: ProcessedFlight) -> str:
-    return (
-        item.metadata.start_timestamp[:10]
-        if item.metadata.start_timestamp
-        else f"unknown:{item.metadata.flight_id}"
-    )
+    return item.metadata.start_timestamp[:10] if item.metadata.start_timestamp else "unknown"
 
 
 def _flight_key(item: ProcessedFlight) -> str:
     return item.metadata.flight_id
+
+
+def _stable_partition(key: str, config: SplitConfig, salt: str) -> str:
+    digest = hashlib.sha256(f"{config.seed}:{salt}:{key}".encode()).digest()
+    value = int.from_bytes(digest, "big") / 2 ** (8 * len(digest))
+    if value < config.train:
+        return "train"
+    if value < config.train + config.validation:
+        return "validation"
+    return "test"

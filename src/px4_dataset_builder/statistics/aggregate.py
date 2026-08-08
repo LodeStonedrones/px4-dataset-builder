@@ -16,6 +16,14 @@ def aggregate_statistics(
     event_counts = Counter(event.name for flight in flights for event in flight.events)
     versions = Counter(flight.metadata.px4_version or "unknown" for flight in flights)
     issue_codes = Counter(issue.code.value for flight in flights for issue in flight.quality.issues)
+    corrupt_flights = sum(
+        any(issue.code == QualityCode.CORRUPT_LOG for issue in flight.quality.issues)
+        for flight in flights
+    )
+    incomplete_flights = sum(
+        any(issue.code == QualityCode.MISSING_TOPIC for issue in flight.quality.issues)
+        for flight in flights
+    )
     gps_degraded = sum(
         any(
             event.name in {"gps_lost", "gps_degraded", "high_eph", "high_epv"}
@@ -52,7 +60,7 @@ def aggregate_statistics(
         },
         "px4_version_distribution": dict(sorted(versions.items())),
         "quality_issue_distribution": dict(sorted(issue_codes.items())),
-        "corrupt_log_count": issue_codes[QualityCode.CORRUPT_LOG.value],
-        "incomplete_log_count": issue_codes[QualityCode.MISSING_TOPIC.value],
+        "corrupt_log_count": corrupt_flights,
+        "incomplete_log_count": incomplete_flights,
         "failed_log_count": len(failed_logs),
     }
