@@ -1,39 +1,79 @@
 name: Bug report
-description: Report reproducible behavior without exposing a sensitive ULog
+description: Report reproducible behavior without exposing sensitive flight data
 title: "[Bug]: "
-labels: ["type:bug"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: Do not attach coordinates, identifiers, operational logs, or data you cannot redistribute.
+      value: |
+        Thank you for helping improve PX4 Dataset Builder.
+
+        **Do not attach a ULog, dataset, coordinates, identifiers, operational details, secrets, or data you cannot redistribute.** Prefer the built-in synthetic fixture or a minimized synthetic reproduction.
   - type: input
-    id: version
+    id: builder_version
     attributes:
-      label: Builder version
+      label: PX4 Dataset Builder version
+      description: Output of `px4-dataset --version` or the full Git commit SHA.
+      placeholder: "0.1.0 or full commit SHA"
     validations:
       required: true
   - type: input
-    id: px4
+    id: environment
     attributes:
-      label: PX4 version and coarse board family
+      label: Environment
+      description: Operating system, architecture, Python version, and installation method.
+      placeholder: "Ubuntu, x86_64, Python 3.12, source install"
+    validations:
+      required: true
+  - type: input
+    id: px4_version
+    attributes:
+      label: PX4 version or log source
+      description: Use a coarse public description. Do not expose a vehicle, customer, site, or internal branch.
+      placeholder: "Synthetic fixture, PX4 v1.15.x, or unknown"
+    validations:
+      required: true
+  - type: input
+    id: output_format
+    attributes:
+      label: Output format
+      placeholder: "Parquet, CSV, JSON Lines, or not applicable"
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Synthetic/minimized reproduction and command
+      label: Minimal reproduction
+      description: Include reviewed commands, configuration, and a synthetic/minimized reproduction where possible.
+      render: shell
     validations:
       required: true
   - type: textarea
-    id: behavior
+    id: expected
     attributes:
-      label: Expected and actual behavior
+      label: Expected behavior
     validations:
       required: true
-  - type: checkboxes
-    id: privacy
+  - type: textarea
+    id: actual
     attributes:
-      label: Data review
+      label: Actual behavior
+      description: Redact personal paths, filenames, coordinates, identifiers, and sensitive log messages.
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional reviewed context
+      description: Add only information that is safe and authorized for permanent public disclosure.
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
       options:
-        - label: I have not included sensitive, classified, operational, or unauthorized data.
+        - label: I searched existing issues and Discussions.
+          required: true
+        - label: I have not included sensitive, classified, operational, proprietary, or unauthorized data.
+          required: true
+        - label: I can reproduce this with synthetic or manually reviewed information, or I explained why that is impossible.
           required: true

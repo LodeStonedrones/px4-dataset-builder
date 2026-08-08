@@ -1,0 +1,80 @@
+name: Dataset contribution
+description: Propose a synthetic, public, or meaningfully anonymized compatibility fixture
+title: "[Dataset]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach or link the ULog in this issue. Do not publish coordinates, identifiers, customer details, operational context, or sensitive metadata.**
+
+        This form starts a data-governance review. It does not authorize file transfer or acceptance. Read the [contributor guide](https://github.com/LodeStonedrones/px4-dataset-builder/blob/main/docs/community/CONTRIBUTOR_GUIDE.md#contributing-flight-data) first.
+  - type: dropdown
+    id: path
+    attributes:
+      label: Proposed contribution path
+      options:
+        - Synthetic reproduction
+        - Reviewed local topic/schema inventory only
+        - Public ULog with an existing redistribution license
+        - Authorized and meaningfully anonymized fixture
+    validations:
+      required: true
+  - type: input
+    id: px4_version
+    attributes:
+      label: PX4 version
+      description: Release only; do not disclose a private branch or vehicle identity.
+      placeholder: "v1.15.x, unknown, or synthetic"
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario and compatibility value
+      description: Describe the technical condition at a non-identifying level and what behavior it can validate.
+    validations:
+      required: true
+  - type: textarea
+    id: inventory
+    attributes:
+      label: Reviewed topic inventory
+      description: List relevant uORB topic names only. Do not paste values, coordinates, free text, or identifiers.
+      placeholder: "vehicle_gps_position, vehicle_status, sensor_combined"
+    validations:
+      required: true
+  - type: textarea
+    id: rights
+    attributes:
+      label: Ownership, authorization, and proposed data license
+      description: Explain who controls the data, who authorized this proposal, and whether redistribution and derivatives are permitted. Do not publish a personal contact address.
+    validations:
+      required: true
+  - type: textarea
+    id: anonymization
+    attributes:
+      label: Anonymization and manual review
+      description: Describe transformations already applied or planned, reviewed artifacts, and known residual linkage risks.
+    validations:
+      required: true
+  - type: textarea
+    id: retention
+    attributes:
+      label: Transfer and retention constraints
+      description: State whether only public redistribution is acceptable or whether a time-bounded private investigation may be discussed. Do not send a file now.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I am authorized to make this proposal and accurately described the rights available.
+          required: true
+        - label: I have not attached, linked, or pasted sensitive or operational flight data.
+          required: true
+        - label: The data is not classified, export-controlled, military, customer-confidential, or part of an accident investigation.
+          required: true
+        - label: I understand that anonymization reduces risk but does not guarantee anonymity.
+          required: true
+        - label: I will wait for written maintainer instructions before any file transfer.
+          required: true

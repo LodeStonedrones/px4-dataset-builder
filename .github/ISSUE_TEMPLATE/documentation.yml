@@ -1,0 +1,54 @@
+name: Documentation improvement
+description: Report unclear, incomplete, inaccurate, or inaccessible documentation
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Documentation location
+      description: Link the page, heading, command help, or code comment.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or incorrect?
+      description: Explain the reader's task and where the current text fails.
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Primary audience
+      options:
+        - First-time user
+        - Contributor
+        - PX4 developer
+        - ROS 2 developer
+        - Researcher
+        - Data engineer
+        - Privacy or security reviewer
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed correction or structure
+      description: Draft text is welcome but not required.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Link tests, source code, public PX4 documentation, standards, or reproducible commands.
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I did not include private logs, coordinates, identifiers, secrets, or unauthorized material.
+          required: true
+        - label: I did not present planned or experimental behavior as validated functionality.
+          required: true

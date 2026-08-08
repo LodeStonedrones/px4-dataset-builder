@@ -46,9 +46,11 @@ dev = [
 px4-dataset = "px4_dataset_builder.cli.app:app"
 
 [project.urls]
-Documentation = "https://github.com/LodeStonedrones/px4-dataset-builder#readme"
+Documentation = "https://github.com/LodeStonedrones/px4-dataset-builder/blob/main/docs/README.md"
 Issues = "https://github.com/LodeStonedrones/px4-dataset-builder/issues"
 Source = "https://github.com/LodeStonedrones/px4-dataset-builder"
+Changelog = "https://github.com/LodeStonedrones/px4-dataset-builder/blob/main/CHANGELOG.md"
+Discussions = "https://github.com/LodeStonedrones/px4-dataset-builder/discussions"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/px4_dataset_builder"]

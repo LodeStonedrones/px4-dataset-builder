@@ -4,9 +4,15 @@ All notable changes follow Keep a Changelog and Semantic Versioning principles.
 
 ## [Unreleased]
 
+### Added
+
+- Added evidence-based compatibility tables, four Mermaid architecture and processing diagrams, benchmark and screenshot protocols, research citation metadata, contributor recognition, governance, and contributor onboarding documentation.
+- Added dedicated dataset-contribution and documentation issue forms plus safe issue-routing links.
+
 ### Changed
 
 - Clarified alpha installation, compatibility evidence, ecosystem relationship, trademark status, community strategy, and performance limits.
+- Reorganized privacy and methodology documentation under purpose-specific directories and reduced the first-dataset quick start to three copyable command lines.
 - Updated supported dependency ranges and GitHub Actions versions already validated by Dependabot CI.
 - Scoped release permissions to the publishing job and grouped future GitHub Actions updates.
 
