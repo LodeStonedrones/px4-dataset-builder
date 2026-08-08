@@ -8,6 +8,11 @@ Every source topic keeps its ULog microsecond timestamp during parsing. Normaliz
 
 `linear` requires two surrounding finite samples and refuses to bridge an interval larger than `max_interpolation_gap_s`. `previous` carries a state only for that same bounded duration. `nearest` selects a real observation within the bound. `none` accepts an exact match only.
 
+The generated grid never extends past the logged flight duration. `max_output_rows`
+(1,000,000 by default) rejects configurations or hostile timestamps that would otherwise
+allocate an unexpectedly large normalized table; it can be adjusted explicitly for trusted,
+high-rate datasets.
+
 Quaternion components use nearest observation, then are normalized before public quaternion-to-Euler equations produce roll, pitch, and yaw. Heading uses nearest observation because interpolation across the ±π discontinuity is misleading. Modes, counters, flags, booleans, and actuator output representation use previous-value behavior. GPS and ordinary translational measurements use bounded linear interpolation.
 
 ## Scientific cautions

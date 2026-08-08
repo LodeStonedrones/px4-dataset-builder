@@ -48,9 +48,10 @@ class DatasetBuilder:
         paths = discover_ulogs(source)
         if not paths:
             raise ValueError(f"No .ulg files found under {source}")
+        source_resolved = source.resolve()
         destination = (output or self.config.output_directory).resolve()
-        if destination == source.resolve():
-            raise ValueError("Output directory cannot be the input path")
+        if source_resolved == destination or source_resolved.is_relative_to(destination):
+            raise ValueError("Output directory cannot be the input path or one of its parents")
         if destination in {Path("/").resolve(), Path.home().resolve(), Path.cwd().resolve()}:
             raise ValueError(
                 f"Refusing to use a broad or working directory as output: {destination}"
@@ -69,6 +70,8 @@ class DatasetBuilder:
         staged: list[StagedFlight] = []
         split_inputs: list[ProcessedFlight] = []
         failures: list[dict[str, str]] = []
+        seen_source_hashes: set[str] = set()
+        seen_flight_ids: set[str] = set()
         private_input_names = {
             path: f"input-{index:06d}.ulg" for index, path in enumerate(paths, start=1)
         }
@@ -82,17 +85,37 @@ class DatasetBuilder:
                     )
                 )
                 continue
-            raw_id = processed.metadata.flight_id
-            split_inputs.append(
-                ProcessedFlight(
-                    pd.DataFrame(), processed.metadata, processed.events, processed.quality
+            if processed.metadata.source_sha256 in seen_source_hashes:
+                failures.append(
+                    self._failure_record(
+                        path,
+                        "Duplicate ULog content was skipped.",
+                        private_input_names[path],
+                    )
                 )
-            )
+                continue
+            seen_source_hashes.add(processed.metadata.source_sha256)
+            raw_id = processed.metadata.flight_id
             data, metadata, events = Anonymizer().apply(
                 processed.data,
                 processed.metadata,
                 processed.events,
                 self.config.anonymization,
+            )
+            if metadata.flight_id in seen_flight_ids:
+                failures.append(
+                    self._failure_record(
+                        path,
+                        "Flight identifier collision; ULog was skipped.",
+                        private_input_names[path],
+                    )
+                )
+                continue
+            seen_flight_ids.add(metadata.flight_id)
+            split_inputs.append(
+                ProcessedFlight(
+                    pd.DataFrame(), processed.metadata, processed.events, processed.quality
+                )
             )
             quality = processed.quality.model_copy(update={"flight_id": metadata.flight_id})
             stage_path = staging / f"{metadata.flight_id}.{exporter.extension}"

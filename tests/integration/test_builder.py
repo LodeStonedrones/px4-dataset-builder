@@ -76,3 +76,39 @@ def test_validator_checks_every_manifest_file(synthetic_ulog: Path, tmp_path: Pa
 
     assert not result["valid"]
     assert any("manifest file statistics" in problem for problem in result["problems"])
+
+
+def test_force_rejects_output_parent_without_deleting_input(
+    synthetic_ulog: Path, tmp_path: Path
+) -> None:
+    source_directory = tmp_path / "source"
+    source_directory.mkdir()
+    source = source_directory / "flight.ulg"
+    source.write_bytes(synthetic_ulog.read_bytes())
+
+    with pytest.raises(ValueError, match="one of its parents"):
+        DatasetBuilder(load_config()).build(source, tmp_path, force=True)
+
+    assert source.read_bytes() == synthetic_ulog.read_bytes()
+
+
+@pytest.mark.parametrize("anonymized", [False, True])
+def test_duplicate_ulog_content_is_skipped_without_overwriting(
+    synthetic_ulog: Path, tmp_path: Path, anonymized: bool
+) -> None:
+    inputs = tmp_path / "inputs"
+    inputs.mkdir()
+    (inputs / "first.ulg").write_bytes(synthetic_ulog.read_bytes())
+    (inputs / "second.ulg").write_bytes(synthetic_ulog.read_bytes())
+    base = load_config()
+    config = base.model_copy(
+        update={"anonymization": base.anonymization.model_copy(update={"enabled": anonymized})}
+    )
+
+    output = tmp_path / "dataset"
+    manifest = DatasetBuilder(config).build(inputs, output)
+
+    assert manifest["flight_count"] == 1
+    assert len(manifest["failed_logs"]) == 1
+    assert "Duplicate ULog content" in manifest["failed_logs"][0]["error"]
+    assert validate_dataset(output)["valid"]

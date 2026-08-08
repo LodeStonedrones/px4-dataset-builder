@@ -8,6 +8,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from px4_dataset_builder.topics.catalog import SIGNAL_CATALOG
+
 
 class OutputFormat(StrEnum):
     CSV = "csv"
@@ -36,6 +38,7 @@ class ResamplingConfig(BaseModel):
     frequency_hz: float = Field(default=10.0, gt=0, le=1_000)
     continuous_method: Literal["linear", "nearest"] = "linear"
     max_interpolation_gap_s: float = Field(default=1.0, gt=0)
+    max_output_rows: int = Field(default=1_000_000, ge=1, le=100_000_000)
 
 
 class EventRuleConfig(BaseModel):
@@ -127,3 +130,32 @@ class BuildConfig(BaseModel):
     quality: QualityConfig = Field(default_factory=QualityConfig)
     performance: PerformanceConfig = Field(default_factory=PerformanceConfig)
     output_directory: Path = Path("dataset")
+
+    @model_validator(mode="after")
+    def validate_signal_selection(self) -> BuildConfig:
+        if not self.signals:
+            raise ValueError("signals must contain at least one canonical signal or '*'")
+        if "*" in self.signals and self.signals != ["*"]:
+            raise ValueError("the '*' signal wildcard must be used on its own")
+
+        selected = set(SIGNAL_CATALOG) if self.signals == ["*"] else set(self.signals)
+        unknown = sorted(selected - SIGNAL_CATALOG.keys())
+        if unknown:
+            raise ValueError(f"unknown canonical signals: {', '.join(unknown)}")
+
+        rule_names: set[str] = set()
+        for rule in self.event_rules:
+            if not rule.name.strip():
+                raise ValueError("event rule names must not be blank")
+            if rule.name in rule_names:
+                raise ValueError(f"duplicate event rule name: {rule.name}")
+            rule_names.add(rule.name)
+            if rule.signal not in SIGNAL_CATALOG:
+                raise ValueError(
+                    f"event rule '{rule.name}' uses unknown canonical signal: {rule.signal}"
+                )
+            if rule.signal not in selected:
+                raise ValueError(
+                    f"event rule '{rule.name}' requires signal '{rule.signal}' to be selected"
+                )
+        return self

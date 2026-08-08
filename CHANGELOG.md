@@ -21,12 +21,17 @@ All notable changes follow Keep a Changelog and Semantic Versioning principles.
 - Honor `output_directory` from configuration when `--output` is omitted.
 - Redact failed input paths when anonymization is enabled.
 - Validate every file referenced by the dataset manifest.
+- Refuse destructive output paths that contain the source ULog or source directory.
+- Remove unpaired absolute GPS coordinates and UTC reference metadata during anonymization.
+- Keep normalized grids within the recorded duration and enforce interpolation gaps exactly.
+- Skip duplicate ULog content safely and reject silent signal or event-rule configuration errors.
 
 ### Security
 
 - Enabled GitHub Private Vulnerability Reporting and documented safe reporting.
 - Enabled Dependabot vulnerability alerts and automated security updates.
 - Added Git ignore coverage and guidance for generated CSV and JSON Lines datasets.
+- Bound normalized output rows and reject signed timestamp overflow before allocation.
 
 ## [0.1.0] - 2026-08-07
 
