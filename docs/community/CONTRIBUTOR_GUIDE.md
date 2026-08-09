@@ -18,17 +18,29 @@ Propose reproducible resampling, splitting, quality, or benchmark methods in a D
 
 ### Flight data
 
-Do not upload a log before completing the process below.
+Flight data is governed separately from software contributions. Start with
+[Contributing PX4 flight data](../../CONTRIBUTE_DATA.md). Do not upload a log before its
+rights, privacy, purpose, transfer, and retention conditions are agreed.
 
 ## Contributing flight data
 
-Use the [Dataset Contribution issue form](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml) to describe the scenario without attaching the file or revealing sensitive details. Maintainers will choose one of three paths:
+Two top-level paths exist:
+
+1. **Community Contribution:** a reviewed artifact may become a public fixture,
+   benchmark input, or open research dataset under separate data terms.
+2. **LodeStone Research Partnership:** authorized private research under a separate
+   written agreement, without an assumption of publication.
+
+Within the public Community Contribution path, use the [Dataset Contribution issue form](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml) to describe the scenario without attaching the file or revealing sensitive details. Maintainers may request one of three artifacts:
 
 1. **Synthetic reproduction — preferred.** Create a minimal non-operational ULog that reproduces the format or behavior.
 2. **Reviewed local inventory.** Run `px4-dataset inspect` locally and share only manually reviewed, non-sensitive topic/schema information.
 3. **Authorized fixture.** Provide a deliberately releasable log with explicit ownership, redistribution, privacy, and retention terms.
 
-Private investigation is exceptional. It requires a named maintainer, agreed purpose, encrypted transfer, deletion date, no cloud upload, no permanent test dependency, and deletion confirmation. Do not send a file merely because an issue was opened.
+The private partnership path is not handled through a public dataset issue. It requires a
+named contact, written purpose and rights, secure transfer, access and retention terms,
+deletion confirmation, and explicit rules for derived results. Private data is not a
+permanent public test dependency. Do not send a file merely because contact was made.
 
 ## Privacy expectations
 

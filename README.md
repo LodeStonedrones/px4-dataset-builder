@@ -9,28 +9,48 @@
 
 Build synchronized, documented, and privacy-aware datasets from one or more PX4 ULog (`.ulg`) flight logs.
 
-> [!NOTE]
-> **Project status: alpha.** The current release is validated with the deterministic synthetic ULog included in this repository. A public compatibility matrix based on authorized real-flight logs has not yet been completed.
-
-[Quick start](#quick-start) · [Compatibility](#compatibility) · [Documentation](docs/README.md) · [Privacy](docs/privacy/PRIVACY.md) · [Contributing](CONTRIBUTING.md) · [Citation](docs/community/CITATION.md)
-
-## Looking for test logs
+## Real-world PX4 logs wanted
 
 > [!IMPORTANT]
-> We are looking for **public, synthetic, or meaningfully anonymized PX4 ULogs** that can be legally redistributed or used for a clearly agreed compatibility investigation. Opening an issue starts a review; it is not permission to upload the log publicly.
+> We are looking for authorized PX4 ULogs to validate real-world compatibility. **Do not attach or link a log publicly.** Processing and anonymization remain local, and nothing is uploaded by this tool.
 
-Useful scenarios include GNSS degradation or loss, GPS-denied and indoor flights, urban canyons, tunnels, high vibration, aggressive maneuvers, multipath GNSS, EMI, RF interference affecting navigation or communications, and other difficult real-world environments.
+Choose the appropriate path before sharing anything:
 
-We cannot accept classified, export-controlled, military, customer-confidential, accident-investigation, personally identifying, commercially sensitive, or operational logs that the contributor is not authorized to share. Do not attach a flight log, coordinates, identifiers, or sensitive metadata to a public issue or Discussion.
+| Path | Use it when | Start here |
+|---|---|---|
+| **Community Contribution** | A reviewed fixture or dataset may be publicly redistributed for compatibility, benchmarks, or open research | [Read the data guide](CONTRIBUTE_DATA.md#community-contribution), then open a [Dataset Contribution issue](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml) without attaching data |
+| **LodeStone Research Partnership** | A university, laboratory, or company can authorize limited research use but not public release | [Read the private partnership requirements](CONTRIBUTE_DATA.md#lodestone-research-partnership), then contact LodeStone with a non-sensitive description only |
 
-To contribute safely:
+Useful evidence includes PX4 release/schema coverage, multiple sensor instances, missing or renamed GPS/IMU/estimator/battery fields, safe truncated logs, and challenging non-sensitive research conditions. We do not accept classified, export-controlled, military, customer-confidential, accident-investigation, personally identifying, or unauthorized operational data.
 
-1. read the [log contribution and privacy guide](docs/community/CONTRIBUTOR_GUIDE.md#contributing-flight-data);
-2. open a [Dataset Contribution request](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml) or use the proposed [Flight Logs Discussion category](docs/community/DISCUSSIONS.md#recommended-categories);
-3. agree on one of the supported paths: synthetic reproduction, reviewed local inventory, or authorized fixture;
-4. share a file only after maintainers confirm the scope, transfer method, retention, and redistribution terms.
+Read [Contributing PX4 flight data](CONTRIBUTE_DATA.md) for anonymization, rights, licensing, contact, retention, and transfer rules. Opening an issue or contacting LodeStone does not authorize file transfer or grant data rights.
 
-The built-in policy can remove absolute GPS, derive local north/east coordinates and relative altitude, remove original timestamps, hash source filenames, remove vehicle identity metadata, and redact free-text log messages. These transformations reduce exposure but **do not guarantee anonymity**; review [Privacy and data governance](docs/privacy/PRIVACY.md) before sharing.
+> [!NOTE]
+> **Project status: alpha.** The current release is validated with the deterministic synthetic ULog included in this repository. No real-world PX4 release is claimed as validated yet.
+
+[Quick start](#quick-start) · [Real-world compatibility](#real-world-compatibility-matrix) · [Contribute data](CONTRIBUTE_DATA.md) · [Documentation](docs/README.md) · [Privacy](docs/privacy/PRIVACY.md) · [Contribute code](CONTRIBUTING.md)
+
+## One-minute overview
+
+```mermaid
+flowchart LR
+    ULog["PX4 ULog"] --> Builder["PX4 Dataset Builder"]
+    Builder --> Dataset["Synchronized structured dataset"]
+    Dataset --> Events["Rule events"]
+    Dataset --> Quality["Quality findings"]
+    Dataset --> Splits["Train / validation / test"]
+    Dataset --> Evidence["Manifest, metadata and checksums"]
+```
+
+```text
+flight.ulg
+  → canonical, synchronized flight tables
+  → events + quality report
+  → complete-flight train / validation / test splits
+  → Parquet, CSV, or JSON Lines with reproducibility evidence
+```
+
+Everything runs locally. The owner previews the generated artifacts and decides separately whether to share them.
 
 ## Why this exists
 
@@ -119,25 +139,28 @@ Status meanings:
 - **Validated** — exercised by automated tests in this repository;
 - **Experimental** — expected to work, but not covered by the complete CI/fixture matrix;
 - **Planned** — roadmap work, not currently claimed as supported.
+- **Not yet validated** — no accepted real-world fixture supports a compatibility claim.
 
-### PX4 versions and log sources
+### Real-world Compatibility Matrix
 
-| PX4 version or source | Status | Current evidence |
-|---|---|---|
-| Project-generated synthetic ULog | **Validated** | Deterministic fixture parsed and built end-to-end in CI; this is not a real PX4-release claim |
-| PX4 v1.14.x real-flight ULogs | **Planned** | Authorized compatibility fixtures requested for v0.2 |
-| PX4 v1.15.x real-flight ULogs | **Planned** | Authorized compatibility fixtures requested for v0.2 |
-| PX4 v1.16.x real-flight ULogs | **Planned** | Authorized compatibility fixtures requested for v0.2 |
-| Other PX4 releases | **Experimental** | PyULog may parse them, but canonical field compatibility is not yet documented |
+Only authorized, reviewable real-world evidence belongs in this table. A parser successfully opening a file is not sufficient for a compatibility claim.
 
-### Tested datasets
+| PX4 version | Real ULogs tested | Provenance / dataset | Sensor coverage | Result |
+|---|---:|---|---|---|
+| PX4 v1.14.x | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
+| PX4 v1.15.x | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
+| PX4 v1.16.x | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
+| PX4 v1.17.x | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
+| PX4 v1.18 pre-release | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
+| Other releases | 0 | No authorized fixture accepted yet | — | **Not yet validated** |
 
-| Dataset class | Status | Scope |
-|---|---|---|
-| Included deterministic synthetic fixture | **Validated** | 1 synthetic flight, 11 source topics, 5 seconds, 51 normalized rows at the default 10 Hz |
-| Authorized public real-flight fixtures | **Planned** | Versioned compatibility matrix with provenance sidecars |
-| Multi-flight public research datasets | **Planned** | No public cohort has been benchmarked or certified yet |
-| Private or operational datasets | **Experimental** | Local processing is available; suitability and privacy remain the operator's responsibility |
+To help populate the matrix, begin with [CONTRIBUTE_DATA.md](CONTRIBUTE_DATA.md). Do not send a log before its path, rights, and privacy conditions have been agreed.
+
+### Synthetic CI evidence
+
+| Source | Logs | Topics | Duration | Result |
+|---|---:|---:|---:|---|
+| Project-generated, non-operational ULog | 1 | 11 | 5 seconds | **Validated end-to-end in CI** — not a real PX4-release claim |
 
 ### Operating systems
 
@@ -246,6 +269,7 @@ The runtime is non-root and contains no cloud configuration.
 | Documentation map | [docs/README.md](docs/README.md) |
 | Architecture and module boundaries | [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) |
 | Quick-start tutorial | [docs/tutorials/QUICKSTART.md](docs/tutorials/QUICKSTART.md) |
+| Contributing or collaborating with flight data | [CONTRIBUTE_DATA.md](CONTRIBUTE_DATA.md) |
 | Privacy and data governance | [docs/privacy/PRIVACY.md](docs/privacy/PRIVACY.md) |
 | Resampling methodology | [docs/methodology/RESAMPLING.md](docs/methodology/RESAMPLING.md) |
 | Benchmarks and evidence | [docs/benchmarks.md](docs/benchmarks.md) |
@@ -265,7 +289,7 @@ PX4 Dataset Builder is an independent community project. It is not an official P
 
 ### Contributing
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [contributor onboarding guide](docs/community/CONTRIBUTOR_GUIDE.md). Synthetic fixtures and authorized, privacy-reviewed compatibility fixtures are particularly valuable. The proposed Discussion structure is documented in [GitHub Discussions](docs/community/DISCUSSIONS.md).
+For code, tests, documentation, or methodology, start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [contributor onboarding guide](docs/community/CONTRIBUTOR_GUIDE.md). For flight data, first read [CONTRIBUTE_DATA.md](CONTRIBUTE_DATA.md) and choose either a public **Community Contribution** or a separately governed, private **LodeStone Research Partnership**. Never attach or link sensitive data in a public issue or Discussion. The proposed Discussion structure is documented in [GitHub Discussions](docs/community/DISCUSSIONS.md).
 
 ### Contributor recognition
 

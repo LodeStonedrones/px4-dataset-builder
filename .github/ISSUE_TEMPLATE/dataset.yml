@@ -1,5 +1,5 @@
-name: Dataset contribution
-description: Propose a synthetic, public, or meaningfully anonymized compatibility fixture
+name: Community data contribution
+description: Propose a synthetic or authorized public compatibility fixture
 title: "[Dataset]: "
 body:
   - type: markdown
@@ -7,7 +7,7 @@ body:
       value: |
         **Do not attach or link the ULog in this issue. Do not publish coordinates, identifiers, customer details, operational context, or sensitive metadata.**
 
-        This form starts a data-governance review. It does not authorize file transfer or acceptance. Read the [contributor guide](https://github.com/LodeStonedrones/px4-dataset-builder/blob/main/docs/community/CONTRIBUTOR_GUIDE.md#contributing-flight-data) first.
+        This form is only for artifacts that may become public. It starts a data-governance review and does not authorize file transfer or acceptance. Read [CONTRIBUTE_DATA.md](https://github.com/LodeStonedrones/px4-dataset-builder/blob/main/CONTRIBUTE_DATA.md) first. Private research partnerships use the separate contact path described there.
   - type: dropdown
     id: path
     attributes:
@@ -59,8 +59,8 @@ body:
   - type: textarea
     id: retention
     attributes:
-      label: Transfer and retention constraints
-      description: State whether only public redistribution is acceptable or whether a time-bounded private investigation may be discussed. Do not send a file now.
+      label: Publication, transfer, and retention constraints
+      description: Describe any review-before-publication, retention, withdrawal, or approved-transfer requirements. This public contribution path requires redistribution rights. Do not send a file now.
     validations:
       required: true
   - type: checkboxes
@@ -75,6 +75,8 @@ body:
         - label: The data is not classified, export-controlled, military, customer-confidential, or part of an accident investigation.
           required: true
         - label: I understand that anonymization reduces risk but does not guarantee anonymity.
+          required: true
+        - label: I understand that this form is for an artifact that may become public if separately accepted and licensed.
           required: true
         - label: I will wait for written maintainer instructions before any file transfer.
           required: true

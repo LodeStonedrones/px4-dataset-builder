@@ -7,12 +7,13 @@ This documentation separates user workflows, research methodology, privacy polic
 | Need | Document |
 |---|---|
 | Build a first synthetic dataset | [Quick start](tutorials/QUICKSTART.md) |
+| Contribute or privately collaborate with flight data | [Contributing PX4 flight data](../CONTRIBUTE_DATA.md) |
 | Understand outputs and current support | [README compatibility matrix](../README.md#compatibility) |
 | Understand module boundaries | [Architecture](architecture/ARCHITECTURE.md) |
 | Design a scientifically defensible resampling policy | [Resampling methodology](methodology/RESAMPLING.md) |
 | Review privacy before using or sharing logs | [Privacy and data governance](privacy/PRIVACY.md) |
 | Reproduce or contribute measurements | [Benchmarks and evidence](benchmarks.md) |
-| Contribute code, documentation, or data | [Contributor onboarding](community/CONTRIBUTOR_GUIDE.md) |
+| Contribute code, documentation, or methodology | [Contributor onboarding](community/CONTRIBUTOR_GUIDE.md) |
 | Understand decisions and maintainer roles | [Project governance](community/GOVERNANCE.md) |
 | Understand scope and non-goals | [Requirements](REQUIREMENTS.md) |
 | See release exit criteria | [Roadmap](ROADMAP.md) |

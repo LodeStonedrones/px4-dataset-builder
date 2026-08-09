@@ -57,7 +57,7 @@ Suggested result schema:
 ## Known limitations
 
 - The synthetic fixture is small and does not model full real-flight topic diversity.
-- PX4 v1.14–v1.16 real-flight compatibility is planned rather than validated.
+- PX4 v1.14–v1.17 and v1.18 pre-release real-world compatibility is not yet validated.
 - CI confirms correctness on small inputs; it does not establish fleet-scale throughput.
 - Peak memory, worker scaling, filesystem sensitivity, and Parquet compression trade-offs have not been published.
 - macOS and Windows are not part of the automated compatibility matrix.

@@ -31,15 +31,26 @@ Useful upstream contributions build trust: PyULog parser bugs with minimal repro
 - Respond within a stated service goal and say honestly when maintainers lack capacity.
 - Credit code, reviews, fixtures, research methodology, and documentation in releases.
 
-## Ethical log contribution paths
+## Ethical flight-data paths
 
-Never incentivize classified, commercially confidential, customer, military, accident-investigation, or operationally sensitive logs. Offer three paths:
+Never incentivize classified, commercially confidential, customer, military, accident-investigation, or operationally sensitive logs. Keep public contribution and private research legally and operationally separate.
 
-1. **Synthetic reproduction:** preferred; contributor generates or minimizes a non-operational ULog.
+### Community Contribution
+
+This path produces public evidence. Prefer, in order:
+
+1. **Synthetic reproduction:** contributor generates or minimizes a non-operational ULog.
 2. **Local inventory:** contributor runs `inspect` and shares only reviewed topic/schema/quality output.
-3. **Authorized fixture:** explicit redistribution and research use, redaction preview, provenance sidecar, manual approval.
+3. **Authorized fixture:** explicit redistribution and research use, local anonymization,
+   provenance sidecar, data license, and manual approval.
 
-For a private parser investigation, use named maintainers, encrypted transfer, a written purpose and deletion date, no cloud upload, no long-term test dependency, and deletion confirmation. Do not promise anonymity; describe transformations and residual linkage risks.
+### LodeStone Research Partnership
+
+This is a separate, private path for a defined research purpose when publication is not
+authorized. It requires named contacts, an agreement covering rights and prohibited uses,
+encrypted transfer, access controls, retention/deletion, derived results, publication,
+incident handling, and deletion confirmation. Private data is not added to the repository
+or treated as an Apache-2.0 contribution.
 
 Universities and laboratories should have a short contribution agreement covering ownership, authorization, purpose, retention, redistribution, withdrawal before release, attribution preference, and responsible contact. Companies should generate a deliberately releasable test log rather than sanitize an operational archive when possible.
 
