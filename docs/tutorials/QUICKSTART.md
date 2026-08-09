@@ -50,6 +50,7 @@ The default anonymization policy removes absolute GPS rather than keeping it. Re
 ## Next steps
 
 - [Dataset examples and interpretation](../examples/README.md)
-- [Compatibility matrix](../../README.md#compatibility)
+- [Real-world compatibility matrix](../../README.md#real-world-compatibility-matrix)
 - [Resampling methodology](../methodology/RESAMPLING.md)
 - [Contributor onboarding](../community/CONTRIBUTOR_GUIDE.md)
+- [Contributing or privately collaborating with flight data](../../CONTRIBUTE_DATA.md)

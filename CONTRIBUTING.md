@@ -2,15 +2,17 @@
 
 Contributions are welcome from PX4 and ROS 2 developers, researchers, students, data engineers, privacy reviewers, and technical writers.
 
-Start with the [Contributor onboarding guide](docs/community/CONTRIBUTOR_GUIDE.md). It explains contribution paths, flight-log handling, privacy expectations, dataset licensing, and the development workflow.
+This document covers code, tests, documentation, and methodology. Flight logs and datasets have a separate governance process in [CONTRIBUTE_DATA.md](CONTRIBUTE_DATA.md), including distinct public community and private research-partnership paths.
+
+Start with the [Contributor onboarding guide](docs/community/CONTRIBUTOR_GUIDE.md) for the development workflow.
 
 ## Start safely
 
 Search issues and Discussions before beginning work. For behavioral, dependency, methodology, or schema changes, open a Discussion or design issue before a large implementation.
 
-Never upload a log containing coordinates, identifiers, operator text, customer data, classified or export-controlled material, accident-investigation data, proprietary information, or data you cannot redistribute. Opening an issue does not authorize file transfer. Synthetic reproduction is preferred; read [Privacy and data governance](docs/privacy/PRIVACY.md).
+Never upload a log containing coordinates, identifiers, operator text, customer data, classified or export-controlled material, accident-investigation data, proprietary information, or data you cannot redistribute. Opening an issue does not authorize file transfer. Synthetic reproduction is preferred; read [Contributing PX4 flight data](CONTRIBUTE_DATA.md) and [Privacy and data governance](docs/privacy/PRIVACY.md).
 
-Use the dedicated forms for a [bug](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=bug.yml), [feature](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=feature.yml), [dataset contribution](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml), or [documentation improvement](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=documentation.yml).
+Use the dedicated forms for a [bug](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=bug.yml), [feature](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=feature.yml), [public community dataset contribution](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=dataset.yml), or [documentation improvement](https://github.com/LodeStonedrones/px4-dataset-builder/issues/new?template=documentation.yml).
 
 ## Development
 

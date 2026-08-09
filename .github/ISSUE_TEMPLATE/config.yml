@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: LodeStone Research Partnership
+    url: https://lodestonedrones.com
+    about: Discuss authorized private research using a non-sensitive description only. Do not send or link flight data initially.
   - name: Questions and community support
     url: https://github.com/LodeStonedrones/px4-dataset-builder/discussions
     about: Ask usage and research questions without attaching sensitive flight data.

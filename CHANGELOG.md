@@ -9,6 +9,8 @@ All notable changes follow Keep a Changelog and Semantic Versioning principles.
 - Added evidence-based compatibility tables, four Mermaid architecture and processing diagrams, benchmark and screenshot protocols, research citation metadata, contributor recognition, governance, and contributor onboarding documentation.
 - Added dedicated dataset-contribution and documentation issue forms plus safe issue-routing links.
 - Added manifest 1.1 provenance with the effective configuration, SHA-256 hashes, and artifact sizes.
+- Added a dedicated flight-data guide with separate Community Contribution and LodeStone Research Partnership paths.
+- Added a prominent one-minute workflow and an evidence-only real-world compatibility matrix.
 
 ### Changed
 
@@ -18,6 +20,8 @@ All notable changes follow Keep a Changelog and Semantic Versioning principles.
 - Scoped release permissions to the publishing job and grouped future GitHub Actions updates.
 - Build datasets in sibling staging directories and install them only after successful completion.
 - Verify built wheels, container startup, release tag/version agreement, and distribution metadata in CI.
+- Clarified that all anonymization, preview, and sharing decisions remain local and user-controlled.
+- Restricted the public dataset issue form to artifacts that may be redistributed.
 
 ### Fixed
 
